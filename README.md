@@ -1,56 +1,48 @@
-# Welcome to your Expo app 👋
+# Proyecto Clima
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App Android en React Native, Expo SDK 57 y TypeScript. App en `mobile`; contexto en `AGENTS.md` y `docs`.
 
-## Get started
+## Ejecutar en Windows / PowerShell
 
-1. Install dependencies
+Con las dependencias ya instaladas, Node 24 LTS y Expo Go compatible con SDK 57:
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```powershell
+Set-Location 'D:\Trabajo-Ale\Proyecto-clima\mobile'
+npm.cmd start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+El lanzador scripts/start.cjs prepara automáticamente certificados de Windows, telemetría desactivada y caché/temporales en .cache del repositorio. Inicia Expo por LAN en puerto 8081. No instala dependencias ni cambia variables globales o la política de PowerShell. Cada terminal nueva puede usar el mismo comando.
 
-### Other setup steps
+### Solo para instalar dependencias en otra copia
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```powershell
+Set-Location mobile
+$env:NODE_OPTIONS = '--use-system-ca'
+$env:EXPO_NO_TELEMETRY = '1'
+$env:npm_config_cache = 'D:\Trabajo-Ale\Proyecto-clima\.cache\npm'
+$env:TEMP = 'D:\Trabajo-Ale\Proyecto-clima\.cache\tmp'
+$env:TMP = $env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
+npm.cmd ci
+npm.cmd start
+```
 
-## Learn more
+`npm.cmd ci` instala el lockfile; solo hace falta al preparar otra copia o reinstalar dependencias. PC y teléfono deben estar en la misma red. Escanear el QR desde Expo Go o introducir la dirección exp:// del servidor. Ctrl+C lo detiene. No hace falta Android Studio para esta prueba.
 
-To learn more about developing your project with Expo, look at the following resources:
+Si la conexión necesita certificados de Windows: usar `$env:NODE_OPTIONS = '--use-system-ca'` en esa terminal antes de npm/npx; no deshabilitar HTTPS.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Verificar
 
-## Join the community
+```powershell
+npx.cmd tsc --noEmit
+npx.cmd expo install --check
+npx.cmd expo export --platform android --output-dir .expo/export-check
+```
 
-Join our community of developers creating universal apps.
+La exportación comprueba el bundle, no genera una app publicable. En teléfono: confirmar inicio, desplazamiento, detalle y regreso con Atrás.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Las variables de caché y temporales se aplican solo a la terminal actual. Se usan en este equipo porque C no tenía espacio libre; no cambian la configuración global ni la política de scripts.
+
+## Alcance actual
+
+Inicio y detalle con clima explícitamente ficticio. Selección de ubicación: consulta puntual con permiso y confirmación, o lista manual de lugares de prueba. Búsqueda global y clima real pendientes. Sin Firebase, salud ni notificaciones. No usar estos ejemplos para decisiones meteorológicas. Sin servicios ni facturación configurados.

@@ -2,19 +2,21 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { demoWeather } from '@/data/demo-weather';
+import { LocationPicker } from '@/components/location-picker';
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.page}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.eyebrow}>TU DÍA, CON CONTEXTO</Text>
         <Text accessibilityRole="header" style={styles.title}>Proyecto Clima</Text>
         <View style={styles.demo}>
           <Text style={styles.badge}>DEMOSTRACIÓN · DATOS FICTICIOS</Text>
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>
         </View>
-        <Text style={styles.place}>{demoWeather.place}</Text>
-        <Text style={styles.caption}>Lugar de ejemplo · sin usar tu ubicación</Text>
+        <LocationPicker />
+        <Text style={styles.place}>Escenario ficticio: {demoWeather.place}</Text>
+        <Text style={styles.caption}>Datos de demostración independientes de la ubicación elegida</Text>
         <View style={styles.hero}>
           <Text style={styles.temperature}>{demoWeather.temperatureC} °C</Text>
           <Text style={styles.heroText}>{demoWeather.condition}</Text>
