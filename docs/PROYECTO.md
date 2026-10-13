@@ -10,6 +10,7 @@ La temperatura actual y otras variables serán contexto, no el único producto.
 
 ## 2. Acuerdos del usuario
 - Desarrollar desde Visual Studio Code con Codex. Antigravity puede obviarse.
+- Repositorio GitHub: https://github.com/aletorresprado/proyecto-clima ; rama main, remoto origin por HTTPS. Subida autorizada y realizada el 2026-10-13. SSH no disponible con la autenticación actual; no se modificaron claves ni permisos.
 - Trabajar en Windows con PowerShell y npm.cmd/npx.cmd; app en mobile y AGENTS.md y docs en la raíz. Creación y primera pantalla autorizadas el 2026-10-09; desarrollo guiado desde VS Code.
 - Utilizar React Native + Expo + TypeScript como base propuesta y aceptada para continuar.
 - Consultar una API de clima con acceso gratuito para comenzar.

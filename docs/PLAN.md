@@ -160,7 +160,7 @@ No avanzar automáticamente a servicios pagos o publicación.
 No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 
 ## Registro de continuidad
-- 2026-10-13: subida a git@github.com:aletorresprado/proyecto-clima.git autorizada. Preparación de commit local y origin; acceso SSH rechazado por GitHub (Permission denied publickey), sin envío confirmado. Caché, node_modules, .expo y .env excluidos; validaciones de app ya registradas. Pendiente resolver autenticación y verificar historial remoto antes del push.
+- 2026-10-13: proyecto subido a https://github.com/aletorresprado/proyecto-clima en rama main, vinculada a origin/main. SSH rechazó autenticación; HTTPS funcionó con credenciales existentes y el remoto estaba vacío. Commit de avances 9ed71be enviado y hash local/remoto verificado. Caché, node_modules, .expo y .env excluidos; sin push forzado ni cambios de permisos. Registro documental enviado posteriormente en otro commit.
 - 2026-10-09: documentación de contexto y plan creada. Sin código, credenciales ni infraestructura.
 - 2026-10-09: revisión de etapa 0 registrada; entorno inspeccionado y requisitos oficiales consultados. Sin implementación ni servicios.
 - 2026-10-09: Windows/PowerShell/npm y mobile aceptados; Node actualizado a v24.20.0 y npm 11.4.1 comprobado. Expo Go actual/SDK 57 y plantilla default revisados; teléfono pendiente.
