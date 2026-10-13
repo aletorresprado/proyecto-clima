@@ -1,7 +1,7 @@
 # Plan de desarrollo — Proyecto Clima
 
 Fecha: 2026-10-09.
-Estado actualizado al 2026-10-13: etapas 0 y 1 completadas; etapa 2 en curso, selección de ubicación en prueba.
+Estado actualizado al 2026-10-13: etapas 0 y 1 completadas; etapa 2 en curso, selección y consulta meteorológica validadas en teléfono. Permiso explícitamente rechazado y alcance de pronóstico pendientes.
 Este plan es una propuesta de ejecución incremental. Las funciones pendientes no son compromisos ya implementados.
 
 ## Etapa 0 — Revisar entorno y confirmar arranque
@@ -79,7 +79,18 @@ Estado: completada el 2026-10-13. Usuario confirma arranque con npm.cmd start, a
 - Normalizar unidades y tiempos; gestionar conexión, falta de permisos, errores y datos vencidos.
 - Mostrar fuente y actualización.
 Validación: ubicación actual y al menos dos localidades distintas; permiso rechazado; sin conexión.
-Estado: en curso. Primera tarea: permiso y selección; datos reales todavía no integrados.
+Estado: en curso. Selección y búsqueda manual y condiciones actuales de Open-Meteo validadas en Android, con actualización, cambio de lugar y error/recuperación sin conexión. Permiso explícitamente rechazado con alternativa manual y alcance de pronóstico pendientes; no cerrar etapa 2 todavía.
+
+### Primera consulta meteorológica — 2026-10-13
+- Validación final de este flujo en Android 13: usuario confirmó los tres pasos indicados, Actualizar clima con conexión, error claro al consultar sin conexión y retorno de tarjetas tras reconectar sin reiniciar. Consulta inicial, unidades/fuente/horarios y cambio de localidad ya confirmados. Consulta meteorológica actual validada; esto no implica validar pronóstico horario ni reglas de riesgo.
+- Usuario confirmó en Android 13 el cambio de localidad sin mezclar datos: desaparecen los valores del lugar anterior y Consultar clima muestra el nuevo lugar y su zona horaria. Validada la prueba indicada con otra localidad (Madrid). Actualización y error/recuperación sin conexión del clima siguen pendientes.
+- Validación en Android 13 confirmada por el usuario: Consultar clima muestra temperatura en °C, viento en km/h, presión en hPa, fuente y horarios. Ubicación automática y búsqueda manual también confirmadas. Cambio de lugar sin conservar valores, actualización y error/recuperación sin conexión del panel meteorológico siguen pendientes; no se equiparan a las pruebas ya realizadas de búsqueda de localidades.
+- Implementado proveedor current-weather.ts y componente WeatherPanel; LocationPicker comunica el lugar elegido al inicio. Consulta solo al tocar Consultar clima/Actualizar clima, con información del envío de coordenadas; sin cuentas, persistencia, GPS continuo ni dependencias nuevas.
+- Temperatura a 2 m (°C), viento a 10 m (km/h), presión reducida al nivel del mar (hPa). Datos de modelos, no mediciones locales. Fuente enlazada Open-Meteo CC BY 4.0; condiciones no comerciales revalidadas en https://open-meteo.com/en/terms . Resolución/celda no se equipara a precisión del punto elegido.
+- Hora de los datos y hora de consulta mostradas en zona del lugar, usando timestamps Unix. Unidades, estructura y zona horaria validadas; valores ausentes/inválidos no se convierten en cero. Vigencia provisional 60 minutos, futuro tolerado 5 minutos; datos fuera de vigencia no se presentan como actuales. Comprobación al volver del segundo plano y cada 30 segundos, sin consultas automáticas de red.
+- Cambio de lugar desmonta el panel y cancela consulta previa; actualización borra valores anteriores. Se ocultan las tarjetas y el aviso ficticio al seleccionar ubicación. Demo y detalle ficticio siguen disponibles antes de elegir un lugar; no se convierten en avisos reales.
+- Verificación: TypeScript, 5 pruebas de localidades y 6 de clima pasaron (ausentes/cero, unidades, fechas, vigencia, error nativo/reintento y cancelación). Consultas reales desde PC para Córdoba y Madrid devolvieron datos vigentes y zonas horarias correctas. Bundle Android exportado (1256 módulos).
+- Pendiente en Android: consulta de ubicación actual y dos localidades, cambio sin conservar datos anteriores, actualización, ausencia de conexión y recuperación. Permiso explícitamente rechazado sigue pendiente. No se añadieron reglas de riesgo ni pronóstico horario; etapa 2 no cerrada.
 
 ### Selección de ubicación — 2026-10-13
 - Usuario confirmó en Android 13 que, al desactivar ubicación, la app no pudo establecerla y, al reactivarla, obtuvo la ubicación actual. Fallo y recuperación por ubicación desactivada validados. El reporte no distingue rechazo del permiso de la app de desactivación del servicio del teléfono; permiso explícitamente rechazado y búsqueda manual bajo ese estado no se dan por verificados.
@@ -172,6 +183,7 @@ No avanzar automáticamente a servicios pagos o publicación.
 No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 
 ## Registro de continuidad
+- Cierre del 2026-10-13 por pedido del usuario: consulta meteorológica actual validada en Android (variables/unidades, fuente/horarios, cambio de lugar, actualización, error y recuperación de conexión). TypeScript y 11 pruebas pasaron antes del commit/push autorizado de estos avances. Etapa 2 sigue abierta. Al retomar: prueba específica de permiso rechazado y definición del siguiente incremento de pronóstico; propuesta de próximas 24 horas todavía no implementada. Sin servicios ni facturación activados.
 - 2026-10-13: proyecto subido a https://github.com/aletorresprado/proyecto-clima en rama main, vinculada a origin/main. SSH rechazó autenticación; HTTPS funcionó con credenciales existentes y el remoto estaba vacío. Commit de avances 9ed71be enviado y hash local/remoto verificado. Caché, node_modules, .expo y .env excluidos; sin push forzado ni cambios de permisos. Registro documental enviado posteriormente en otro commit.
 - 2026-10-09: documentación de contexto y plan creada. Sin código, credenciales ni infraestructura.
 - 2026-10-09: revisión de etapa 0 registrada; entorno inspeccionado y requisitos oficiales consultados. Sin implementación ni servicios.
@@ -179,4 +191,4 @@ No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 - 2026-10-09: conflicto de npm resuelto con respaldo autorizado; versiones efectivas verificadas en PowerShell nuevo: Node 24.20.0, npm.cmd/npx.cmd 11.19.0. Sin creación de app.
 - 2026-10-09: app mínima autorizada, creada en mobile con datos ficticios; tipos, compatibilidad de dependencias y bundle Android verificados. Metro iniciado; apertura real en Expo Go pendiente de confirmación.
 - 2026-10-13: etapa 1 completada con confirmación del usuario de arranque y navegación en Android 13.
-- Próximo paso de desarrollo: integrar pronóstico real tras revisar proveedor, unidades y actualización. Selección manual, sugerencia/confirmación, ausencia de coincidencias, fallo de conexión y recuperación, ubicación desactivada y recuperación ya confirmados. Mantener pendiente la prueba específica de permiso rechazado con alternativa manual. Registrar versión de Expo Go cuando esté disponible. Etapa 2 sigue en curso.
+- Próximo paso: verificar permiso explícitamente rechazado con búsqueda manual y definir el siguiente incremento de pronóstico para completar etapa 2 antes del motor de avisos. Condiciones actuales, variables/unidades, fuente/horarios, cambio de lugar, actualización y fallo/recuperación de red ya confirmados en Android. Registrar versión de Expo Go cuando esté disponible.

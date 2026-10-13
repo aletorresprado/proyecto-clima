@@ -1,20 +1,25 @@
 ﻿import { Link } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { demoWeather } from '@/data/demo-weather';
 import { LocationPicker } from '@/components/location-picker';
+import { WeatherPanel } from '@/components/weather-panel';
+import type { WeatherLocation } from '@/providers/current-weather';
 
 export default function HomeScreen() {
+  const [location, setLocation] = useState<WeatherLocation>();
   return (
     <SafeAreaView style={styles.page}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.eyebrow}>TU DÍA, CON CONTEXTO</Text>
         <Text accessibilityRole="header" style={styles.title}>Proyecto Clima</Text>
-        <View style={styles.demo}>
+        {!location && <View style={styles.demo}>
           <Text style={styles.badge}>DEMOSTRACIÓN · DATOS FICTICIOS</Text>
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>
-        </View>
-        <LocationPicker />
+        </View>}
+        <LocationPicker onSelect={setLocation} />
+        {location ? <WeatherPanel key={`${location.latitude}:${location.longitude}:${location.label}`} location={location} /> : <>
         <Text style={styles.place}>Escenario ficticio: {demoWeather.place}</Text>
         <Text style={styles.caption}>Datos de demostración independientes de la ubicación elegida</Text>
         <View style={styles.hero}>
@@ -33,6 +38,7 @@ export default function HomeScreen() {
           <Link href="/explore" style={styles.link}>Ver motivo y fuente →</Link>
         </View>
         <Text style={styles.caption}>Fuente: {demoWeather.source}{'\n'}Actualización ficticia: {demoWeather.updated}</Text>
+        </>}
       </ScrollView>
     </SafeAreaView>
   );

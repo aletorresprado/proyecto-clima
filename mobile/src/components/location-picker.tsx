@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { suggestDeviceLocation } from '@/providers/device-location';
 import { searchLocations, type SearchPlace } from '@/providers/search-locations';
+import type { WeatherLocation } from '@/providers/current-weather';
 
-export function LocationPicker() {
+export function LocationPicker({ onSelect }: { onSelect: (place: WeatherLocation) => void }) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<{ label: string; latitude: number; longitude: number; timezone?: string | null }>();
   const [suggestion, setSuggestion] = useState<{ label: string; hasPlaceName: boolean; latitude: number; longitude: number }>();
@@ -72,7 +73,7 @@ export function LocationPicker() {
   return (
     <View style={styles.card}>
       <Text accessibilityRole="header" style={styles.title}>Elegí tu ubicación</Text>
-      <Text style={styles.body}>Consultamos la ubicación solo cuando lo pedís. Para sugerir el nombre usamos el servicio de geocodificación del sistema, que puede necesitar conexión. No guardamos tu ubicación ni la enviamos a un proveedor de clima.</Text>
+      <Text style={styles.body}>Consultamos la ubicación solo cuando lo pedís. Para sugerir el nombre usamos el servicio del sistema. Después de elegir un lugar podés consultar su clima; las coordenadas se enviarán a Open-Meteo al tocar Consultar clima.</Text>
       <Pressable accessibilityRole="button" disabled={busy || searchStatus === 'loading'} onPress={requestLocation} style={[styles.button, (busy || searchStatus === 'loading') && styles.disabled]}>
         <Text style={styles.buttonText}>{busy ? 'Buscando ubicación y localidad…' : 'Usar mi ubicación'}</Text>
       </Pressable>
@@ -84,7 +85,7 @@ export function LocationPicker() {
           <Text style={styles.body}>{suggestion.hasPlaceName
             ? 'Nombre sugerido por el servicio del sistema. Confirmá si corresponde al lugar que querés consultar; si no, descartalo y usá la selección manual.'
             : 'Obtuvimos coordenadas, pero no pudimos resolver una localidad. Podés confirmarlas, reintentar con conexión o elegir un lugar manualmente.'}</Text>
-          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { setSelected(suggestion); setSuggestion(undefined); }}>
+          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { setSelected(suggestion); onSelect(suggestion); setSuggestion(undefined); }}>
             <Text style={styles.buttonText}>Confirmar esta ubicación</Text>
           </Pressable>
           <Pressable accessibilityRole="button" onPress={() => setSuggestion(undefined)} style={styles.secondary}>
@@ -101,7 +102,7 @@ export function LocationPicker() {
       {searchStatus === 'loading' && <ActivityIndicator color="#126271" accessibilityLabel="Buscando localidades" />}
       {searchMessage !== '' && <Text accessibilityLiveRegion="polite" style={styles.body}>{searchMessage}</Text>}
       {results.map((place) => (
-        <Pressable key={place.id} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { setSelected(place); setSuggestion(undefined); setMessage(''); changeQuery(''); }}>
+        <Pressable key={place.id} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { setSelected(place); onSelect(place); setSuggestion(undefined); setMessage(''); changeQuery(''); }}>
           <Text style={styles.action}>Elegir {place.label}</Text>
         </Pressable>
       ))}
@@ -110,7 +111,7 @@ export function LocationPicker() {
       <Pressable accessibilityRole="link" style={styles.secondary} onPress={() => { void Linking.openURL('https://open-meteo.com/en/docs/geocoding-api').catch(() => setSearchMessage('No pudimos abrir el enlace de la fuente.')); }}>
         <Text style={styles.action}>Localidades: Open-Meteo · datos de GeoNames (CC BY 4.0)</Text>
       </Pressable>
-      {selected && <Text accessibilityLiveRegion="polite" style={styles.body}>Ubicación elegida: {selected.label}. Los datos meteorológicos de abajo siguen siendo ficticios y no corresponden a esta selección.</Text>}
+      {selected && <Text accessibilityLiveRegion="polite" style={styles.body}>Ubicación elegida: {selected.label}. Consultá las condiciones estimadas con el botón de abajo.</Text>}
     </View>
   );
 }

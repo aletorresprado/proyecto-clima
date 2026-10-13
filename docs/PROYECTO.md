@@ -1,6 +1,6 @@
 # Proyecto Clima
 
-Fecha base: 2026-10-09. Estado al 2026-10-13: app mínima en mobile validada en Android 13 (inicio, desplazamiento, detalle y regreso confirmados por el usuario); datos ficticios, sin infraestructura configurada.
+Fecha base: 2026-10-09. Estado al 2026-10-13: app mínima, selección de lugares y consulta meteorológica real validadas en Android 13, incluyendo cambio de localidad, actualización, error sin conexión y recuperación. Prueba específica de permiso rechazado pendiente. Sin infraestructura configurada.
 Nombre provisional: Proyecto Clima.
 
 ## 1. Objetivo
@@ -34,6 +34,8 @@ La temperatura actual y otras variables serán contexto, no el único producto.
 ## 4. Fuentes candidatas
 ### Open-Meteo
 Geocodificación manual integrada para pruebas no comerciales el 2026-10-13: endpoint /v1/search, lenguaje español, máximo 10 resultados, consulta explícita con al menos 3 caracteres. Atribución Open-Meteo/GeoNames visible. Condiciones verificadas: menos de 10.000 consultas/día, 5.000/hora y 600/minuto; licencia CC BY 4.0 indicada por Open-Meteo. Sin clave ni cuenta. Revisar uso comercial antes de monetizar; selección de este servicio no confirma todavía el proveedor de pronóstico.
+Primera integración meteorológica implementada el 2026-10-13 para pruebas no comerciales: /v1/forecast con current temperature_2m, wind_speed_10m y pressure_msl; °C, km/h y hPa. Consulta explícita tras elegir/confirmar lugar, con información de envío de coordenadas a Open-Meteo. Se presentan como condiciones actuales estimadas por modelos, no sensores ni alertas oficiales. Horas Unix convertidas usando la zona horaria resuelta por el proveedor; se diferencian hora del dato y hora de consulta, sin inventar fecha de ejecución del modelo. Atribución visible.
+Vigencia de presentación provisional: 60 minutos desde la hora del dato y tolerancia de futuro de 5 minutos para discrepancias de reloj. No es un criterio validado de riesgo. Fuera de vigencia se ocultan valores y se solicita actualización; variables ausentes muestran información insuficiente. No se calcula severidad ni ausencia de riesgo.
 Proveedor inicial recomendado para pronóstico y calidad del aire.
 Verificar cobertura real, variables, resolución, actualización, atribución, límites y condiciones de uso antes de implementar.
 El acceso gratuito consultado en octubre de 2026 era no comercial y anunciaba 10.000 llamadas diarias; revisar también los demás límites.
