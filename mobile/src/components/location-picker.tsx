@@ -1,20 +1,51 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { suggestDeviceLocation } from '@/providers/device-location';
-
-const examplePlaces = ['Yerba Buena, Tucumán', 'Buenos Aires, Argentina', 'Córdoba, Argentina', 'Madrid, España'];
-const normalize = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+import { searchLocations, type SearchPlace } from '@/providers/search-locations';
 
 export function LocationPicker() {
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<string>();
-  const [suggestion, setSuggestion] = useState<{ label: string; hasPlaceName: boolean }>();
+  const [selected, setSelected] = useState<{ label: string; latitude: number; longitude: number; timezone?: string | null }>();
+  const [suggestion, setSuggestion] = useState<{ label: string; hasPlaceName: boolean; latitude: number; longitude: number }>();
+  const [results, setResults] = useState<SearchPlace[]>([]);
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [searchMessage, setSearchMessage] = useState('');
+  const searchController = useRef<AbortController | null>(null);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const mounted = useRef(true);
   const requesting = useRef(false);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const matches = query.trim() ? examplePlaces.filter((place) => normalize(place).includes(normalize(query))) : [];
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; searchController.current?.abort(); }; }, []);
+
+  function changeQuery(value: string) {
+    searchController.current?.abort();
+    setQuery(value);
+    setResults([]);
+    setSearchStatus('idle');
+    setSearchMessage('');
+  }
+
+  async function search() {
+    if (busy || query.trim().length < 3 || searchStatus === 'loading') return;
+    searchController.current?.abort();
+    const controller = new AbortController();
+    searchController.current = controller;
+    setSearchStatus('loading');
+    setSearchMessage('');
+    setResults([]);
+    try {
+      const places = await searchLocations(query, controller.signal);
+      if (mounted.current && !controller.signal.aborted) {
+        setResults(places);
+        setSearchStatus('done');
+      }
+    } catch (error) {
+      if (mounted.current && !controller.signal.aborted) {
+        setSearchStatus('error');
+        setSearchMessage(error instanceof Error ? error.message : 'No pudimos buscar. Reintentá.');
+      }
+    }
+  }
 
   async function requestLocation() {
     if (requesting.current) return;
@@ -27,6 +58,8 @@ export function LocationPicker() {
       if (mounted.current) setSuggestion({
         label: coordinates.placeName ?? `Ubicación del dispositivo (${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)})`,
         hasPlaceName: coordinates.placeName !== null,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
       });
     } catch (error) {
       if (mounted.current) setMessage(error instanceof Error ? error.message : 'No pudimos obtener ubicación. Probá la selección manual.');
@@ -40,7 +73,7 @@ export function LocationPicker() {
     <View style={styles.card}>
       <Text accessibilityRole="header" style={styles.title}>Elegí tu ubicación</Text>
       <Text style={styles.body}>Consultamos la ubicación solo cuando lo pedís. Para sugerir el nombre usamos el servicio de geocodificación del sistema, que puede necesitar conexión. No guardamos tu ubicación ni la enviamos a un proveedor de clima.</Text>
-      <Pressable accessibilityRole="button" disabled={busy} onPress={requestLocation} style={[styles.button, busy && styles.disabled]}>
+      <Pressable accessibilityRole="button" disabled={busy || searchStatus === 'loading'} onPress={requestLocation} style={[styles.button, (busy || searchStatus === 'loading') && styles.disabled]}>
         <Text style={styles.buttonText}>{busy ? 'Buscando ubicación y localidad…' : 'Usar mi ubicación'}</Text>
       </Pressable>
       {busy && <ActivityIndicator accessibilityLabel="Obteniendo ubicación" color="#126271" />}
@@ -51,7 +84,7 @@ export function LocationPicker() {
           <Text style={styles.body}>{suggestion.hasPlaceName
             ? 'Nombre sugerido por el servicio del sistema. Confirmá si corresponde al lugar que querés consultar; si no, descartalo y usá la selección manual.'
             : 'Obtuvimos coordenadas, pero no pudimos resolver una localidad. Podés confirmarlas, reintentar con conexión o elegir un lugar manualmente.'}</Text>
-          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { setSelected(suggestion.label); setSuggestion(undefined); }}>
+          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { setSelected(suggestion); setSuggestion(undefined); }}>
             <Text style={styles.buttonText}>Confirmar esta ubicación</Text>
           </Pressable>
           <Pressable accessibilityRole="button" onPress={() => setSuggestion(undefined)} style={styles.secondary}>
@@ -59,16 +92,25 @@ export function LocationPicker() {
           </Pressable>
         </View>
       )}
-      <Text style={styles.label}>O buscá un lugar de prueba</Text>
-      <TextInput accessibilityLabel="Buscar lugar de prueba" placeholder="Ej.: Córdoba o Madrid" placeholderTextColor="#52697A" value={query} onChangeText={setQuery} editable={!busy} style={styles.input} autoCorrect={false} maxLength={100} />
-      <Text style={styles.caption}>Lista local de ejemplo. La búsqueda de cualquier localidad se incorporará en el siguiente paso.</Text>
-      {matches.map((place) => (
-        <Pressable key={place} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { setSelected(`${place} (selección manual de prueba)`); setSuggestion(undefined); setMessage(''); setQuery(''); }}>
-          <Text style={styles.action}>Elegir {place}</Text>
+      <Text style={styles.label}>O buscá una localidad</Text>
+      <Text style={styles.caption}>Al tocar Buscar enviamos el texto a Open-Meteo. No hace falta permiso de ubicación para esta búsqueda.</Text>
+      <TextInput accessibilityLabel="Buscar localidad" placeholder="Ej.: Córdoba o Madrid" placeholderTextColor="#52697A" value={query} onChangeText={changeQuery} editable={!busy} style={styles.input} autoCorrect={false} maxLength={100} returnKeyType="search" onSubmitEditing={search} />
+      <Pressable accessibilityRole="button" disabled={busy || searchStatus === 'loading' || query.trim().length < 3} onPress={search} style={[styles.button, (busy || searchStatus === 'loading' || query.trim().length < 3) && styles.disabled]}>
+        <Text style={styles.buttonText}>{searchStatus === 'loading' ? 'Buscando localidades…' : 'Buscar'}</Text>
+      </Pressable>
+      {searchStatus === 'loading' && <ActivityIndicator color="#126271" accessibilityLabel="Buscando localidades" />}
+      {searchMessage !== '' && <Text accessibilityLiveRegion="polite" style={styles.body}>{searchMessage}</Text>}
+      {results.map((place) => (
+        <Pressable key={place.id} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { setSelected(place); setSuggestion(undefined); setMessage(''); changeQuery(''); }}>
+          <Text style={styles.action}>Elegir {place.label}</Text>
         </Pressable>
       ))}
-      {query.trim() && matches.length === 0 && <Text style={styles.caption}>No está en la lista de prueba. Probá Córdoba, Madrid, Buenos Aires o Yerba Buena.</Text>}
-      {selected && <Text accessibilityLiveRegion="polite" style={styles.body}>Ubicación elegida: {selected}. Los datos meteorológicos de abajo siguen siendo ficticios y no corresponden a esta selección.</Text>}
+      {searchStatus === 'done' && results.length === 0 && <Text accessibilityLiveRegion="polite" style={styles.caption}>No encontramos coincidencias. Probá otro nombre o agregá el país después de una coma.</Text>}
+      {query.trim().length < 3 && <Text style={styles.caption}>Escribí al menos 3 caracteres.</Text>}
+      <Pressable accessibilityRole="link" style={styles.secondary} onPress={() => { void Linking.openURL('https://open-meteo.com/en/docs/geocoding-api').catch(() => setSearchMessage('No pudimos abrir el enlace de la fuente.')); }}>
+        <Text style={styles.action}>Localidades: Open-Meteo · datos de GeoNames (CC BY 4.0)</Text>
+      </Pressable>
+      {selected && <Text accessibilityLiveRegion="polite" style={styles.body}>Ubicación elegida: {selected.label}. Los datos meteorológicos de abajo siguen siendo ficticios y no corresponden a esta selección.</Text>}
     </View>
   );
 }

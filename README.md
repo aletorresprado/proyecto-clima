@@ -35,6 +35,7 @@ Si la conexión necesita certificados de Windows: usar `$env:NODE_OPTIONS = '--u
 
 ```powershell
 npx.cmd tsc --noEmit
+npm.cmd run test:locations
 npx.cmd expo install --check
 npx.cmd expo export --platform android --output-dir .expo/export-check
 ```
@@ -45,4 +46,4 @@ Las variables de caché y temporales se aplican solo a la terminal actual. Se us
 
 ## Alcance actual
 
-Inicio y detalle con clima explícitamente ficticio. Selección de ubicación: consulta puntual con permiso y confirmación, o lista manual de lugares de prueba. Búsqueda global y clima real pendientes. Sin Firebase, salud ni notificaciones. No usar estos ejemplos para decisiones meteorológicas. Sin servicios ni facturación configurados.
+Inicio y detalle con clima explícitamente ficticio. Selección de ubicación: consulta puntual con permiso, geocodificación inversa del sistema y confirmación, o búsqueda real mediante Open-Meteo (datos de GeoNames, atribución visible). Las consultas manuales se envían solo al tocar Buscar; requieren conexión, sin permiso GPS. Uso de prueba no comercial bajo condiciones de Open-Meteo; revisar licencia si se monetiza. Clima real pendiente. Sin Firebase, salud ni notificaciones. No usar estos ejemplos para decisiones meteorológicas. Sin cuentas de servicios ni facturación configuradas.

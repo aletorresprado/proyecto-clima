@@ -11,4 +11,4 @@ Desde esta carpeta, con las dependencias ya instaladas:
 
 El comando start prepara automáticamente el entorno de Expo y usa caché y temporales en .cache de la raíz. No hace falta pegar variables en cada terminal nueva.
 
-Hay consulta puntual de ubicación con permiso y confirmación, y lista manual de prueba. No hay API meteorológica, Firebase ni notificaciones. Inicio/detalle ya validados; el nuevo flujo de ubicación requiere prueba en Android, que la compilación local no sustituye.
+Hay consulta puntual de ubicación con permiso, nombre sugerido y confirmación, y búsqueda manual real con Open-Meteo/GeoNames. No hay pronóstico real, Firebase ni notificaciones. Inicio/detalle y nombre sugerido ya validados; la búsqueda manual requiere prueba en Android, que la compilación local no sustituye.

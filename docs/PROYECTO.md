@@ -33,6 +33,7 @@ La temperatura actual y otras variables serán contexto, no el único producto.
 
 ## 4. Fuentes candidatas
 ### Open-Meteo
+Geocodificación manual integrada para pruebas no comerciales el 2026-10-13: endpoint /v1/search, lenguaje español, máximo 10 resultados, consulta explícita con al menos 3 caracteres. Atribución Open-Meteo/GeoNames visible. Condiciones verificadas: menos de 10.000 consultas/día, 5.000/hora y 600/minuto; licencia CC BY 4.0 indicada por Open-Meteo. Sin clave ni cuenta. Revisar uso comercial antes de monetizar; selección de este servicio no confirma todavía el proveedor de pronóstico.
 Proveedor inicial recomendado para pronóstico y calidad del aire.
 Verificar cobertura real, variables, resolución, actualización, atribución, límites y condiciones de uso antes de implementar.
 El acceso gratuito consultado en octubre de 2026 era no comercial y anunciaba 10.000 llamadas diarias; revisar también los demás límites.
@@ -91,7 +92,7 @@ Definir consentimiento, retención, eliminación y exportación antes de habilit
 | Arranque implementado | Expo SDK 57; plantilla default 57.0.29, create-expo-app 5.0.0; Stack de Expo Router, inicio y detalle ficticios |
 | Ejecución local | npm.cmd start desde mobile; lanzador Node prepara variables solo para Expo, caché/temporales en .cache y LAN puerto 8081. Acordado el 2026-10-13 |
 | Navegación | Expo Router, recomendado |
-| Ubicación | Expo Location SDK 57: consulta puntual con permiso al tocar, geocodificación inversa del sistema y confirmación. Selección manual con lista de prueba; búsqueda global pendiente |
+| Ubicación | Expo Location SDK 57 para ubicación puntual y nombre del sistema; búsqueda manual real con Open-Meteo/GeoNames y elección explícita |
 | Identidad | Firebase Authentication; Google como proveedor inicial |
 | Datos | Cloud Firestore; reemplaza la propuesta anterior de PostgreSQL |
 | Notificaciones | Expo Notifications; elegir Expo Push Service o FCM directo antes de implementar |

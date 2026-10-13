@@ -34,6 +34,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test:locations": "node --test scripts/search-locations.test.mjs",
     "start": "node ./scripts/start.cjs",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
