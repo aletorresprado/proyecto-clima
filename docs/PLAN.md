@@ -1,7 +1,7 @@
 # Plan de desarrollo — Proyecto Clima
 
 Fecha: 2026-10-09.
-Estado actualizado al 2026-10-13: etapas 0 y 1 completadas; etapa 2 en curso, selección y consulta meteorológica validadas en teléfono. Permiso explícitamente rechazado y alcance de pronóstico pendientes.
+Estado actualizado al 2026-10-14: etapas 0, 1 y 2 completadas. Etapa 3 en curso: primera regla experimental de viento aprobada e implementada; tarjeta real y cuatro escenarios ficticios verificados por el usuario en Android 13. Pendiente comprobar regreso y actualización/cambio de lugar sin duplicados.
 Este plan es una propuesta de ejecución incremental. Las funciones pendientes no son compromisos ya implementados.
 
 ## Etapa 0 — Revisar entorno y confirmar arranque
@@ -79,7 +79,17 @@ Estado: completada el 2026-10-13. Usuario confirma arranque con npm.cmd start, a
 - Normalizar unidades y tiempos; gestionar conexión, falta de permisos, errores y datos vencidos.
 - Mostrar fuente y actualización.
 Validación: ubicación actual y al menos dos localidades distintas; permiso rechazado; sin conexión.
-Estado: en curso. Selección y búsqueda manual y condiciones actuales de Open-Meteo validadas en Android, con actualización, cambio de lugar y error/recuperación sin conexión. Permiso explícitamente rechazado con alternativa manual y alcance de pronóstico pendientes; no cerrar etapa 2 todavía.
+Estado: completada el 2026-10-14 para el alcance inicial: ubicación puntual/nombre/confirmación, búsqueda manual, condiciones actuales y pronóstico de temperatura/viento/presión de las próximas 24 horas. Validación Android 13: localidad actual y localidades distintas, cambio sin mezclar valores, actualización, error/recuperación sin conexión y consulta manual con permiso bloqueado. Tipos, 16 pruebas y bundle pasaron tras parches compatibles. No hay reglas de riesgo ni alertas operativas.
+
+### Pronóstico de 24 horas — 2026-10-14
+- Usuario confirmó en Android 13 el fallo y recuperación de conexión: sin conexión no se obtiene información y al reconectar vuelve a funcionar la consulta. Flujo meteorológico/horario validado con conexión, cambio de lugar, actualización y recuperación. No se infiere de este reporte una verificación separada de cada tarjeta durante el fallo.
+- Usuario confirmó en Android 13 los tres pasos indicados: desplazamiento hasta la última tarjeta con fechas/horas correctas, cambio de localidad sin conservar datos anteriores y actualización del pronóstico. Pruebas del flujo con conexión validadas; sin conexión/recuperación del pronóstico y permiso explícitamente rechazado permanecen pendientes.
+- Usuario confirmó en Android 13 que la pantalla muestra las próximas 24 horas. Visualización inicial validada; no implica todavía confirmar la última fila, cambio de lugar, actualización ni error/recuperación de red del pronóstico. Expo notificó parches disponibles (expo 57.0.28 → ~57.0.29 y otros cuatro paquetes); pendientes de revisar con expo install --check, sin actualización ejecutada.
+- Mismo botón y misma petición obtienen condiciones actuales y series horarias de temperatura a 2 m, viento a 10 m y presión reducida al nivel del mar. Sin dependencias nuevas, consultas automáticas ni servicios/cuentas configurados.
+- Filtra timestamps futuros dentro de las próximas 24 horas; fecha, hora local y offset UTC visibles. Valida unidades, longitud de series, orden y paso horario. No convierte valores ausentes en cero; respuesta parcial identificada. Pronóstico inválido no invalida condiciones actuales válidas.
+- Vigencia de presentación provisional de 60 minutos desde consulta, independiente de la hora futura prevista; comprobación local al regresar del segundo plano y periódicamente, sin tráfico de red. Horas pasadas dejan de mostrarse; se pide actualización si quedan menos de 24 disponibles.
+- Validación: TypeScript y 16 pruebas pasaron (5 localidades y 11 clima), con cinco casos nuevos de ventana de 24 horas, medianoche/límites exactos, desalineación/unidades/duplicados, faltantes y vencimiento de consulta. API real devolvió 24 horas para Córdoba y Madrid con zonas horarias correctas. Exportación Android exitosa (1256 módulos).
+- Pendiente en teléfono: ver sección y horarios, desplazarse hasta última hora, cambio de localidad, actualización y comportamiento sin conexión/recuperación del pronóstico. No hay motor de avisos ni reglas de riesgo.
 
 ### Primera consulta meteorológica — 2026-10-13
 - Validación final de este flujo en Android 13: usuario confirmó los tres pasos indicados, Actualizar clima con conexión, error claro al consultar sin conexión y retorno de tarjetas tras reconectar sin reiniciar. Consulta inicial, unidades/fuente/horarios y cambio de localidad ya confirmados. Consulta meteorológica actual validada; esto no implica validar pronóstico horario ni reglas de riesgo.
@@ -124,7 +134,16 @@ Alcance recomendado: UV, viento, lluvia, visibilidad y tendencia de presión.
 - Controlar repetición, vigencia y estados de información insuficiente.
 - Dejar granizo, hormigas y predicción de dolor fuera de reglas operativas.
 Validación: escenarios ficticios de límites y datos ausentes; pruebas unitarias relevantes del motor.
-Estado: pendiente.
+Estado: en curso el 2026-10-14. Usuario aprobó viento previsto a 10 m >=40 km/h como criterio experimental. Motor puro y tarjeta implementados; no es alerta oficial ni criterio local validado. Otras reglas pendientes.
+
+### Primera regla de viento — 2026-10-14
+- rules/wind.ts recibe lugar, consulta, serie horaria normalizada y reloj explícito. Devuelve aviso experimental, criterio no alcanzado o información insuficiente. Filtra horas futuras de 24 h; consulta vence a 60 min. No accede a red, GPS ni persistencia.
+- Cobertura incompleta con excedencia válida conserva aviso con limitación; sin excedencia y con huecos no concluye ausencia de riesgo. Estructura inválida o vencida da información insuficiente. Horas son puntos del modelo, no intervalos continuos confirmados.
+- WindNoticeCard muestra lugar, máximo/horas, motivo/umbral, acción, fuente/consulta, vigencia y referencia NWS. Una tarjeta por regla/lugar con ID estable, reemplazada al reevaluar; sin push, popups ni historial persistente. Cambiar de lugar o actualizar no apila avisos.
+- Ruta wind-demo ofrece cuatro escenarios ficticios (con aviso, debajo, faltantes, vencido), accesible desde la tarjeta en desarrollo, sin consultar clima real. No se inyectan ejemplos en datos reales.
+- Validación: TypeScript pasó; 24 pruebas pasaron (5 localidades, 11 clima y 8 viento: límites, ausentes/cero, parcial, vencimiento/reloj, horizonte, duplicados, cierre por tiempo e identidad/reevaluación). Se corrigió el generador de un caso de prueba ausente antes de obtener el resultado final. Bundle Android exportado correctamente (1259 módulos).
+- Validación en Android 13 confirmada por el usuario: tarjeta de evaluación para Taco Ralo, Provincia de Tucumán, Argentina, con criterio no alcanzado en las 24 horas evaluadas. Acceso a pruebas ficticias y cambio de resultado al seleccionar Con aviso, Debajo del criterio, Datos faltantes y Consulta vencida confirmados. Esto verifica la interfaz, no la calibración meteorológica del umbral.
+- Pendiente: volver con Atrás y actualizar/cambiar de lugar sin duplicados en Android. Etapa 3 no completada: otros módulos/umbrales y validación de contenidos pendientes.
 
 ## Etapa 4 — Firebase y acceso
 - Crear o seleccionar proyecto Firebase con autorización del usuario.
@@ -183,6 +202,8 @@ No avanzar automáticamente a servicios pagos o publicación.
 No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 
 ## Registro de continuidad
+- 2026-10-14: usuario confirmó que el permiso se solicita después de tocar Usar mi ubicación. Al rechazarlo, muestra El permiso está bloqueado… y permite búsqueda manual y consulta de pronóstico. Último caso pendiente validado en Android 13; etapa 2 cerrada. Versión exacta de Expo Go sigue pendiente como dato de entorno, sin bloquear el cierre. Revisión de auditoría antes de distribuir sigue pendiente.
+- 2026-10-14: parches compatibles de SDK 57 aplicados con expo install --fix; package.json y lockfile actualizados. TypeScript, 16 pruebas, expo install --check y exportación Android (1256 módulos) pasaron. Sin cambios globales ni facturación. Auditoría mantiene los 29 hallazgos previamente registrados; no se aplicó audit fix --force. Pendiente reiniciar Metro/reabrir en Android y verificar permiso explícitamente rechazado con alternativa manual; no se cierra etapa 2 aún.
 - Cierre del 2026-10-13 por pedido del usuario: consulta meteorológica actual validada en Android (variables/unidades, fuente/horarios, cambio de lugar, actualización, error y recuperación de conexión). TypeScript y 11 pruebas pasaron antes del commit/push autorizado de estos avances. Etapa 2 sigue abierta. Al retomar: prueba específica de permiso rechazado y definición del siguiente incremento de pronóstico; propuesta de próximas 24 horas todavía no implementada. Sin servicios ni facturación activados.
 - 2026-10-13: proyecto subido a https://github.com/aletorresprado/proyecto-clima en rama main, vinculada a origin/main. SSH rechazó autenticación; HTTPS funcionó con credenciales existentes y el remoto estaba vacío. Commit de avances 9ed71be enviado y hash local/remoto verificado. Caché, node_modules, .expo y .env excluidos; sin push forzado ni cambios de permisos. Registro documental enviado posteriormente en otro commit.
 - 2026-10-09: documentación de contexto y plan creada. Sin código, credenciales ni infraestructura.
@@ -191,4 +212,4 @@ No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 - 2026-10-09: conflicto de npm resuelto con respaldo autorizado; versiones efectivas verificadas en PowerShell nuevo: Node 24.20.0, npm.cmd/npx.cmd 11.19.0. Sin creación de app.
 - 2026-10-09: app mínima autorizada, creada en mobile con datos ficticios; tipos, compatibilidad de dependencias y bundle Android verificados. Metro iniciado; apertura real en Expo Go pendiente de confirmación.
 - 2026-10-13: etapa 1 completada con confirmación del usuario de arranque y navegación en Android 13.
-- Próximo paso: verificar permiso explícitamente rechazado con búsqueda manual y definir el siguiente incremento de pronóstico para completar etapa 2 antes del motor de avisos. Condiciones actuales, variables/unidades, fuente/horarios, cambio de lugar, actualización y fallo/recuperación de red ya confirmados en Android. Registrar versión de Expo Go cuando esté disponible.
+- Próximo paso: volver desde las pruebas ficticias y revisar actualización/cambio de lugar sin duplicados en Android. Tarjeta real y cuatro escenarios ya confirmados por el usuario. No confundir con ráfagas, ausencia de riesgo ni alertas oficiales. Registrar versión de Expo Go cuando esté disponible. Otras reglas de etapa 3 pendientes.

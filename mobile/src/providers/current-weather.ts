@@ -1,4 +1,5 @@
 export type WeatherLocation = { label: string; latitude: number; longitude: number; timezone?: string | null };
+export type ForecastHour = { time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
 export type CurrentWeather = {
   temperatureC: number | null;
   windKmh: number | null;
@@ -6,6 +7,7 @@ export type CurrentWeather = {
   validAt: number;
   fetchedAt: number;
   timezone: string;
+  hourly: ForecastHour[] | null;
 };
 // Criterio provisional de presentación; no es un umbral de riesgo meteorológico.
 export const WEATHER_MAX_AGE_MS = 60 * 60 * 1000;
@@ -15,6 +17,34 @@ export function isWeatherFresh(weather: CurrentWeather, now = Date.now()) {
 }
 const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const numeric = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? value : null;
+export function parseHourlyForecast(payload: unknown, now: number): ForecastHour[] | null {
+  if (!record(payload) || !record(payload.hourly) || !record(payload.hourly_units)) return null;
+  const units = payload.hourly_units;
+  if (units.time !== 'unixtime' || units.temperature_2m !== '°C' || units.wind_speed_10m !== 'km/h' || units.pressure_msl !== 'hPa') return null;
+  const { time, temperature_2m: temperatures, wind_speed_10m: winds, pressure_msl: pressures } = payload.hourly;
+  if (!Array.isArray(time) || !Array.isArray(temperatures) || !Array.isArray(winds) || !Array.isArray(pressures) ||
+      time.length !== temperatures.length || time.length !== winds.length || time.length !== pressures.length) return null;
+  const hours: ForecastHour[] = [];
+  let previous: number | undefined;
+  for (let index = 0; index < time.length; index++) {
+    const seconds = numeric(time[index]);
+    if (seconds === null || seconds <= 0 || seconds * 1000 > 8640000000000000 ||
+        (previous !== undefined && seconds - previous !== 3600)) return null;
+    previous = seconds;
+    const timestamp = seconds * 1000;
+    if (timestamp <= now || timestamp > now + 24 * 3600000) continue;
+    const wind = numeric(winds[index]);
+    const pressure = numeric(pressures[index]);
+    hours.push({ time: timestamp, temperatureC: numeric(temperatures[index]),
+      windKmh: wind !== null && wind >= 0 ? wind : null,
+      seaLevelPressureHpa: pressure !== null && pressure > 0 ? pressure : null });
+  }
+  return hours;
+}
+export function isForecastFresh(weather: CurrentWeather, now = Date.now()) {
+  const age = now - weather.fetchedAt;
+  return age >= 0 && age <= WEATHER_MAX_AGE_MS;
+}
 export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): CurrentWeather {
   if (!record(payload) || payload.error === true || !record(payload.current) || !record(payload.current_units)) throw new Error('El proveedor devolvió información meteorológica insuficiente.');
   const units = payload.current_units;
@@ -30,6 +60,7 @@ export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): C
     windKmh: wind !== null && wind >= 0 ? wind : null,
     seaLevelPressureHpa: pressure !== null && pressure > 0 ? pressure : null,
     validAt: time * 1000, fetchedAt, timezone: payload.timezone,
+    hourly: parseHourlyForecast(payload, fetchedAt),
   };
 }
 export async function fetchCurrentWeather(location: WeatherLocation, signal: AbortSignal): Promise<CurrentWeather> {
@@ -41,7 +72,7 @@ export async function fetchCurrentWeather(location: WeatherLocation, signal: Abo
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=1`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_hours=25`;
     let response: Response;
     try { response = await fetch(url, { signal: controller.signal }); }
     catch (error) {

@@ -11,4 +11,4 @@ Desde esta carpeta, con las dependencias ya instaladas:
 
 El comando start prepara automáticamente el entorno de Expo y usa caché y temporales en .cache de la raíz. No hace falta pegar variables en cada terminal nueva.
 
-Hay ubicación puntual con permiso, nombre sugerido y confirmación, y búsqueda manual real con Open-Meteo/GeoNames, ya probadas en Android. Consultar clima obtiene condiciones actuales estimadas por modelos (temperatura, viento y presión al nivel del mar), con fuente y horas locales. Consulta meteorológica pendiente de prueba en teléfono; la compilación local no la sustituye. Sin reglas de riesgo, pronóstico horario, Firebase ni notificaciones.
+Ubicación, búsqueda manual y condiciones actuales/pronóstico de 24 horas validados en Android. Primera evaluación experimental de viento >=40 km/h implementada, pendiente de prueba visual; no es una alerta oficial ni umbral local validado. En desarrollo, Probar con datos ficticios abre cuatro escenarios separados. Sin Firebase ni notificaciones. Ver docs/PLAN.md de la raíz para validaciones y pendientes.

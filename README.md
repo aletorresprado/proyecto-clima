@@ -37,6 +37,7 @@ Si la conexión necesita certificados de Windows: usar `$env:NODE_OPTIONS = '--u
 npx.cmd tsc --noEmit
 npm.cmd run test:locations
 npm.cmd run test:weather
+npm.cmd run test:wind
 npx.cmd expo install --check
 npx.cmd expo export --platform android --output-dir .expo/export-check
 ```
@@ -47,6 +48,6 @@ Las variables de caché y temporales se aplican solo a la terminal actual. Se us
 
 ## Alcance actual
 
-Antes de elegir un lugar se muestra una demo explícitamente ficticia. Al elegirlo, Consultar clima obtiene temperatura, viento y presión al nivel del mar de Open-Meteo como estimaciones de modelos, con unidades, fuente y horas locales. Envía las coordenadas solo al consultar; sin persistencia. Datos ausentes o vencidos muestran información insuficiente. Sin reglas de riesgo, alertas oficiales ni pronóstico horario.
+Antes de elegir un lugar se muestra una demo explícitamente ficticia. Al elegirlo, Consultar clima obtiene condiciones actuales y pronóstico de 24 horas, ya validados en Android. Primera regla experimental de viento >=40 km/h a 10 m: criterio propio aprobado para pruebas, no umbral local validado ni alerta oficial; distingue faltantes/vencimiento y no evalúa ráfagas. Tarjeta pendiente de prueba visual. En desarrollo, Probar con datos ficticios abre escenarios separados en /wind-demo. Sin notificaciones ni persistencia; coordenadas enviadas solo al consultar.
 
 Ubicación puntual con permiso, nombre del sistema y confirmación, o búsqueda real de Open-Meteo/GeoNames. Consultas manuales solo al tocar Buscar; requieren conexión, sin GPS. Uso de prueba no comercial; revisar licencia al monetizar. Sin Firebase, salud, notificaciones, cuentas de servicios ni facturación configuradas.

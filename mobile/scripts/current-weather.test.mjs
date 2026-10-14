@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseCurrentWeather, isWeatherFresh, fetchCurrentWeather, WEATHER_MAX_AGE_MS } from '../src/providers/current-weather.ts';
+import { parseCurrentWeather, isWeatherFresh, parseHourlyForecast, isForecastFresh, fetchCurrentWeather, WEATHER_MAX_AGE_MS } from '../src/providers/current-weather.ts';
 
 const now = Date.UTC(2026, 9, 13, 15);
 const payload = {
@@ -9,6 +9,55 @@ const payload = {
   current: { time: now / 1000, temperature_2m: 0, wind_speed_10m: 0, pressure_msl: 1013 },
 };
 const location = { label: 'Lugar de prueba', latitude: -26, longitude: -65 };
+const hourlyPayload = {
+  ...payload,
+  hourly_units: payload.current_units,
+  hourly: {
+    time: Array.from({ length: 27 }, (_, index) => now / 1000 + index * 3600),
+    temperature_2m: Array(27).fill(0),
+    wind_speed_10m: Array(27).fill(10),
+    pressure_msl: Array(27).fill(1013),
+  },
+};
+
+test('pronóstico incluye solo las siguientes 24 horas y cruza medianoche sin desplazar timestamps', () => {
+  const hours = parseHourlyForecast(hourlyPayload, now + 15 * 60000);
+  assert.equal(hours.length, 24);
+  assert.equal(hours[0].time, now + 3600000);
+  assert.equal(hours.at(-1).time, now + 24 * 3600000);
+  assert.equal(hours[0].temperatureC, 0);
+  assert.equal(new Date(hours.at(-1).time).getUTCDate(), 14);
+});
+test('el límite exacto excluye la hora actual y conserva la de +24 horas', () => {
+  const hours = parseHourlyForecast(hourlyPayload, now);
+  assert.equal(hours.length, 24);
+  assert.equal(hours[0].time, now + 3600000);
+  assert.equal(hours.at(-1).time, now + 24 * 3600000);
+});
+test('series desalineadas, unidades distintas y tiempos duplicados no mezclan valores', () => {
+  assert.equal(parseHourlyForecast({ ...hourlyPayload, hourly: { ...hourlyPayload.hourly, wind_speed_10m: [] } }, now), null);
+  assert.equal(parseHourlyForecast({ ...hourlyPayload, hourly_units: { ...payload.current_units, pressure_msl: 'Pa' } }, now), null);
+  const times = [...hourlyPayload.hourly.time];
+  times[2] = times[1];
+  assert.equal(parseHourlyForecast({ ...hourlyPayload, hourly: { ...hourlyPayload.hourly, time: times } }, now), null);
+  assert.equal(parseCurrentWeather({ ...payload, hourly: {} }, now).temperatureC, 0);
+});
+test('horas o valores ausentes no se rellenan con datos inventados', () => {
+  const partial = Object.fromEntries(Object.entries(hourlyPayload.hourly).map(([key, values]) => [key, values.slice(0, 3)]));
+  partial.temperature_2m[1] = null;
+  partial.wind_speed_10m[1] = -1;
+  const hours = parseHourlyForecast({ ...hourlyPayload, hourly: partial }, now);
+  assert.equal(hours.length, 2);
+  assert.equal(hours[0].temperatureC, null);
+  assert.equal(hours[0].windKmh, null);
+  assert.equal(parseHourlyForecast({}, now), null);
+});
+test('vigencia del pronóstico depende de consulta, no de horas futuras que aún no ocurrieron', () => {
+  const weather = parseCurrentWeather(hourlyPayload, now);
+  assert.equal(isForecastFresh(weather, now + WEATHER_MAX_AGE_MS), true);
+  assert.equal(isForecastFresh(weather, now + WEATHER_MAX_AGE_MS + 1), false);
+  assert.equal(isForecastFresh(weather, now - 1), false);
+});
 
 test('cero es un dato; valores ausentes o inválidos son información insuficiente', () => {
   const weather = parseCurrentWeather(payload, now);
