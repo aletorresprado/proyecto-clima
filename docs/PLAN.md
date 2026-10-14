@@ -1,7 +1,7 @@
 # Plan de desarrollo — Proyecto Clima
 
 Fecha: 2026-10-09.
-Estado actualizado al 2026-10-14: etapas 0, 1 y 2 completadas. Etapa 3 en curso: primera regla experimental de viento aprobada e implementada; tarjeta real y cuatro escenarios ficticios verificados por el usuario en Android 13. Pendiente comprobar regreso y actualización/cambio de lugar sin duplicados.
+Estado actualizado al 2026-10-14: etapas 0, 1 y 2 completadas. Etapa 3 en curso: primera entrega experimental de viento validada en Android 13, incluyendo tarjeta real, cuatro escenarios ficticios, regreso y actualización/cambio de lugar sin duplicados. Otros módulos y criterios pendientes.
 Este plan es una propuesta de ejecución incremental. Las funciones pendientes no son compromisos ya implementados.
 
 ## Etapa 0 — Revisar entorno y confirmar arranque
@@ -143,7 +143,7 @@ Estado: en curso el 2026-10-14. Usuario aprobó viento previsto a 10 m >=40 km/h
 - Ruta wind-demo ofrece cuatro escenarios ficticios (con aviso, debajo, faltantes, vencido), accesible desde la tarjeta en desarrollo, sin consultar clima real. No se inyectan ejemplos en datos reales.
 - Validación: TypeScript pasó; 24 pruebas pasaron (5 localidades, 11 clima y 8 viento: límites, ausentes/cero, parcial, vencimiento/reloj, horizonte, duplicados, cierre por tiempo e identidad/reevaluación). Se corrigió el generador de un caso de prueba ausente antes de obtener el resultado final. Bundle Android exportado correctamente (1259 módulos).
 - Validación en Android 13 confirmada por el usuario: tarjeta de evaluación para Taco Ralo, Provincia de Tucumán, Argentina, con criterio no alcanzado en las 24 horas evaluadas. Acceso a pruebas ficticias y cambio de resultado al seleccionar Con aviso, Debajo del criterio, Datos faltantes y Consulta vencida confirmados. Esto verifica la interfaz, no la calibración meteorológica del umbral.
-- Pendiente: volver con Atrás y actualizar/cambiar de lugar sin duplicados en Android. Etapa 3 no completada: otros módulos/umbrales y validación de contenidos pendientes.
+- Cierre de esta entrega: usuario confirmó en Android 13 regreso con Atrás, actualización y cambio de localidad sin duplicar tarjetas ni conservar la del lugar anterior. Primera entrega experimental de viento validada funcionalmente. Etapa 3 no completada: otros módulos/umbrales y validación de contenidos pendientes.
 
 ## Etapa 4 — Firebase y acceso
 - Crear o seleccionar proyecto Firebase con autorización del usuario.
@@ -202,6 +202,7 @@ No avanzar automáticamente a servicios pagos o publicación.
 No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 
 ## Registro de continuidad
+- 2026-10-14: primera entrega de viento validada funcionalmente en Android 13. Código, pruebas y documentación previa enviados a GitHub en cb8fa2f; la confirmación final de regreso/actualización/cambio sin duplicados se registra después de ese commit. Siguiente incremento pendiente de definir; no hay nuevos umbrales aprobados ni servicios activados.
 - 2026-10-14: usuario confirmó que el permiso se solicita después de tocar Usar mi ubicación. Al rechazarlo, muestra El permiso está bloqueado… y permite búsqueda manual y consulta de pronóstico. Último caso pendiente validado en Android 13; etapa 2 cerrada. Versión exacta de Expo Go sigue pendiente como dato de entorno, sin bloquear el cierre. Revisión de auditoría antes de distribuir sigue pendiente.
 - 2026-10-14: parches compatibles de SDK 57 aplicados con expo install --fix; package.json y lockfile actualizados. TypeScript, 16 pruebas, expo install --check y exportación Android (1256 módulos) pasaron. Sin cambios globales ni facturación. Auditoría mantiene los 29 hallazgos previamente registrados; no se aplicó audit fix --force. Pendiente reiniciar Metro/reabrir en Android y verificar permiso explícitamente rechazado con alternativa manual; no se cierra etapa 2 aún.
 - Cierre del 2026-10-13 por pedido del usuario: consulta meteorológica actual validada en Android (variables/unidades, fuente/horarios, cambio de lugar, actualización, error y recuperación de conexión). TypeScript y 11 pruebas pasaron antes del commit/push autorizado de estos avances. Etapa 2 sigue abierta. Al retomar: prueba específica de permiso rechazado y definición del siguiente incremento de pronóstico; propuesta de próximas 24 horas todavía no implementada. Sin servicios ni facturación activados.
@@ -212,4 +213,4 @@ No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 - 2026-10-09: conflicto de npm resuelto con respaldo autorizado; versiones efectivas verificadas en PowerShell nuevo: Node 24.20.0, npm.cmd/npx.cmd 11.19.0. Sin creación de app.
 - 2026-10-09: app mínima autorizada, creada en mobile con datos ficticios; tipos, compatibilidad de dependencias y bundle Android verificados. Metro iniciado; apertura real en Expo Go pendiente de confirmación.
 - 2026-10-13: etapa 1 completada con confirmación del usuario de arranque y navegación en Android 13.
-- Próximo paso: volver desde las pruebas ficticias y revisar actualización/cambio de lugar sin duplicados en Android. Tarjeta real y cuatro escenarios ya confirmados por el usuario. No confundir con ráfagas, ausencia de riesgo ni alertas oficiales. Registrar versión de Expo Go cuando esté disponible. Otras reglas de etapa 3 pendientes.
+- Próximo paso: definir el siguiente módulo de etapa 3 y documentar variables, fuente, criterio y textos antes de implementarlo. Primera entrega de viento validada; no confundir con ráfagas, ausencia de riesgo ni alertas oficiales. Registrar versión de Expo Go cuando esté disponible.

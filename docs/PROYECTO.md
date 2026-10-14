@@ -70,7 +70,7 @@ Para otros países, la integración de alertas oficiales deberá resolverse por 
 “Radar” puede ser una etiqueta visual. Estos módulos son análisis de datos; un radar meteorológico real sería una integración adicional.
 
 ## 6. Reglas de aviso
-Inicio de etapa 3 el 2026-10-14: usuario aprobó el criterio experimental de viento >=40 km/h a 10 m y el aviso preventivo propuesto. Implementado como evaluación dentro de la app. Usuario verificó en Android 13 la tarjeta real de Taco Ralo y el cambio entre los cuatro escenarios ficticios (con aviso, debajo del criterio, datos faltantes y consulta vencida). Regreso y actualización/cambio de lugar sin duplicados pendientes de comprobar en teléfono; aprobación de producto y prueba de interfaz no equivalen a validación meteorológica local.
+Inicio de etapa 3 el 2026-10-14: usuario aprobó el criterio experimental de viento >=40 km/h a 10 m y el aviso preventivo propuesto. Implementado como evaluación dentro de la app. Usuario verificó en Android 13 la tarjeta real de Taco Ralo y el cambio entre los cuatro escenarios ficticios (con aviso, debajo del criterio, datos faltantes y consulta vencida), además del regreso y actualización/cambio de lugar sin duplicados. Primera entrega validada funcionalmente; aprobación de producto y prueba de interfaz no equivalen a validación meteorológica local. Otros módulos y umbrales pendientes.
 
 ### Regla inicial de viento (aprobada para pruebas experimentales)
 - Variable: wind_speed_10m prevista por Open-Meteo, en km/h, en las próximas 24 horas. No es wind_gusts_10m; no inferir ráfagas ni promedios de observación específicos del dato de modelo.
