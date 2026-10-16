@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.24",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.29",
     "expo-constants": "~57.0.21",
     "expo-device": "~57.0.2",
@@ -37,6 +38,7 @@
     "test:locations": "node --test scripts/search-locations.test.mjs",
     "test:weather": "node --test scripts/current-weather.test.mjs",
     "test:wind": "node --test scripts/wind.test.mjs",
+    "test:earthquakes": "node --test scripts/earthquakes.test.mjs",
     "start": "node ./scripts/start.cjs",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",

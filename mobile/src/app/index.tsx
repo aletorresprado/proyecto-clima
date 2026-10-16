@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { demoWeather } from '@/data/demo-weather';
 import { LocationPicker } from '@/components/location-picker';
 import { WeatherPanel } from '@/components/weather-panel';
+import { EarthquakeCard } from '@/components/earthquake-monitor';
 import type { WeatherLocation } from '@/providers/current-weather';
 
 export default function HomeScreen() {
@@ -19,6 +20,7 @@ export default function HomeScreen() {
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>
         </View>}
         <LocationPicker onSelect={setLocation} />
+        <EarthquakeCard />
         {location ? <WeatherPanel key={`${location.latitude}:${location.longitude}:${location.label}`} location={location} /> : <>
         <Text style={styles.place}>Escenario ficticio: {demoWeather.place}</Text>
         <Text style={styles.caption}>Datos de demostración independientes de la ubicación elegida</Text>
