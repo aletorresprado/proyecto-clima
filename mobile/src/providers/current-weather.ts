@@ -1,5 +1,6 @@
 export type WeatherLocation = { label: string; latitude: number; longitude: number; timezone?: string | null };
 export type ForecastHour = { time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
+export type UvHour = { time: number; uvIndex: number | null };
 export type CurrentWeather = {
   temperatureC: number | null;
   windKmh: number | null;
@@ -8,6 +9,7 @@ export type CurrentWeather = {
   fetchedAt: number;
   timezone: string;
   hourly: ForecastHour[] | null;
+  uvHourly: UvHour[] | null;
 };
 // Criterio provisional de presentación; no es un umbral de riesgo meteorológico.
 export const WEATHER_MAX_AGE_MS = 60 * 60 * 1000;
@@ -17,6 +19,22 @@ export function isWeatherFresh(weather: CurrentWeather, now = Date.now()) {
 }
 const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const numeric = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? value : null;
+export function parseUvForecast(payload: unknown, now: number): UvHour[] | null {
+  if (!Number.isFinite(now) || !record(payload) || !record(payload.hourly) || !record(payload.hourly_units)) return null;
+  if (payload.hourly_units.time !== 'unixtime' || payload.hourly_units.uv_index !== '') return null;
+  const { time, uv_index: values } = payload.hourly;
+  if (!Array.isArray(time) || !Array.isArray(values) || time.length !== values.length) return null;
+  const hours: UvHour[] = [];
+  for (let index = 0; index < time.length; index++) {
+    const seconds = numeric(time[index]);
+    if (seconds === null || seconds <= 0 || seconds * 1000 > 8640000000000000 || (index > 0 && seconds - time[index - 1] !== 3600)) return null;
+    const timestamp = seconds * 1000;
+    if (timestamp <= now || timestamp > now + 24 * 3600000) continue;
+    const uv = numeric(values[index]);
+    hours.push({ time: timestamp, uvIndex: uv !== null && uv >= 0 ? uv : null });
+  }
+  return hours;
+}
 export function parseHourlyForecast(payload: unknown, now: number): ForecastHour[] | null {
   if (!record(payload) || !record(payload.hourly) || !record(payload.hourly_units)) return null;
   const units = payload.hourly_units;
@@ -61,6 +79,7 @@ export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): C
     seaLevelPressureHpa: pressure !== null && pressure > 0 ? pressure : null,
     validAt: time * 1000, fetchedAt, timezone: payload.timezone,
     hourly: parseHourlyForecast(payload, fetchedAt),
+    uvHourly: parseUvForecast(payload, fetchedAt),
   };
 }
 export async function fetchCurrentWeather(location: WeatherLocation, signal: AbortSignal): Promise<CurrentWeather> {
@@ -72,7 +91,7 @@ export async function fetchCurrentWeather(location: WeatherLocation, signal: Abo
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_hours=25`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl,uv_index&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_hours=25`;
     let response: Response;
     try { response = await fetch(url, { signal: controller.signal }); }
     catch (error) {

@@ -46,6 +46,7 @@
 - Usar datos ficticios en desarrollo. Evitar recopilar datos personales que no sean necesarios.
 
 ## Continuidad
+- Preferencia del usuario: cada vez que se cree un commit, subirlo también al repositorio remoto con push y verificar el resultado. No dejar commits locales pendientes de subida sin informar un bloqueo.
 - Al cerrar una etapa, actualizar estado, validación y siguiente paso en docs/PLAN.md.
 - Documentar las decisiones técnicas en docs/PROYECTO.md; no convertir propuestas en acuerdos sin indicarlo.
 - No crear CLAUDE.md ni instrucciones para otras herramientas salvo petición explícita.
