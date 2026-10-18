@@ -2,7 +2,7 @@
 
 App Android para consultar el clima y organizar actividades con recomendaciones preventivas comprensibles. Desarrollada con React Native, Expo SDK 57 y TypeScript.
 
-**Estado al 18 de octubre de 2026:** etapa 3 en curso. Condiciones actuales, pronóstico de 24 horas, viento, UV, precipitación y visibilidad validados funcionalmente en un teléfono Android 13 con Expo Go. Monitoreo de eventos sísmicos recientes integrado y probado con consultas reales y escenarios ficticios.
+**Estado al 18 de octubre de 2026:** alcance inicial de etapa 3 completado. Condiciones actuales, pronóstico de 24 horas, viento, UV, precipitación, visibilidad y variación de presión validados funcionalmente en un teléfono Android 13 con Expo Go. Monitoreo de eventos sísmicos recientes integrado y probado con consultas reales y escenarios ficticios.
 
 ## Funciones disponibles
 
@@ -14,8 +14,9 @@ App Android para consultar el clima y organizar actividades con recomendaciones 
 | Índice UV | Protección recomendada desde UV 3 y mensaje reforzado desde UV 8, con referencia de la OMS. |
 | Precipitación | Criterio práctico propio desde 50 % de probabilidad. Porcentaje y cantidad en mm separados, con inicio y fin de cada intervalo horario completo futuro. |
 | Visibilidad | Recomendación experimental para valores previstos menores de 1.000 m; muestra mínimo y horas, sin confirmar niebla ni condiciones de una carretera concreta. Validada funcionalmente en Android. |
+| Variación de presión | Compara la presión prevista al nivel del mar entre dos horas separadas por 3 h, con diferencia en hPa. Información de contexto, sin alertas de tormenta ni conclusiones de salud. Validada funcionalmente en Android. |
 | Sismos recientes | Eventos publicados por USGS de las últimas 24 horas, en un radio aproximado de 200 km alrededor del teléfono. Consulta cada 2 minutos tras completar el ciclo, solo con la app activa; controles para iniciar y detener. |
-| Pruebas ficticias | Pantallas de desarrollo separadas para viento, UV, precipitación, visibilidad y repetición/persistencia de eventos sísmicos. |
+| Pruebas ficticias | Pantallas de desarrollo separadas para viento, UV, precipitación, visibilidad, presión y repetición/persistencia de eventos sísmicos. |
 
 Los datos meteorológicos son estimaciones de modelos. Las recomendaciones propias no son alertas oficiales. El monitoreo sísmico muestra eventos ya ocurridos con posibles demoras y revisiones: **no es predicción ni alerta temprana**. Una respuesta vacía no garantiza ausencia de actividad; los datos ausentes o vencidos significan información insuficiente.
 
@@ -65,12 +66,13 @@ npm.cmd run test:wind
 npm.cmd run test:uv
 npm.cmd run test:precipitation
 npm.cmd run test:visibility
+npm.cmd run test:pressure
 npm.cmd run test:earthquakes
 npx.cmd expo install --check
 npx.cmd expo export --platform android --output-dir .expo/export-check
 ```
 
-Ejecutar desde `mobile`. Incremento de visibilidad: TypeScript, **54 pruebas automatizadas**, bundle Android y validación funcional en teléfono correctos. Las pruebas cubren límites, unidades, datos ausentes, vencimiento, intervalos y persistencia/deduplicación de IDs.
+Ejecutar desde `mobile`. Incremento de presión: TypeScript, **60 pruebas automatizadas**, bundle Android y validación funcional en teléfono correctos. Las pruebas cubren límites, unidades, datos ausentes, vencimiento, intervalos y persistencia/deduplicación de IDs.
 
 La exportación comprueba el bundle, no genera una app publicable. En Android 13 se verificaron navegación, actualización y cambio de localidad, errores de conexión y recuperación, permisos y escenarios ficticios. La persistencia sísmica se probó con eventos ficticios aislados; no se verificó la recepción de un sismo real cercano.
 
@@ -86,4 +88,4 @@ Fuentes: [Open-Meteo](https://open-meteo.com/en/docs), [Open-Meteo/GeoNames](htt
 
 ## Próximos pasos
 
-El próximo paso es definir el alcance de **tendencia de presión** de la etapa 3. Visibilidad ya está validada en Android. Firebase, perfil de salud opcional, notificaciones con la app cerrada y publicación en Google Play pertenecen a etapas posteriores. Revisar también los hallazgos de auditoría de dependencias registrados en el plan antes de distribuir.
+El próximo paso es revisar el diseño de **Firebase y acceso (etapa 4)**, preservando la consulta meteorológica sin cuenta. Todavía no hay servicios configurados; no se activa facturación automáticamente. Perfil de salud opcional, notificaciones con la app cerrada y publicación en Google Play pertenecen a etapas posteriores. Revisar también los hallazgos de auditoría de dependencias registrados en el plan antes de distribuir.

@@ -13,6 +13,7 @@ export default function RootLayout() {
         <Stack.Screen name="uv-demo" options={{ title: 'Pruebas ficticias de UV' }} />
         <Stack.Screen name="precipitation-demo" options={{ title: 'Pruebas ficticias de precipitación' }} />
         <Stack.Screen name="visibility-demo" options={{ title: 'Pruebas ficticias de visibilidad' }} />
+        <Stack.Screen name="pressure-demo" options={{ title: 'Pruebas ficticias de presión' }} />
       </Stack>
     </EarthquakeMonitorProvider>
   );

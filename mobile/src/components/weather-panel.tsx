@@ -5,6 +5,7 @@ import { WindNoticeCard } from '@/components/wind-notice-card';
 import { UvNoticeCard } from '@/components/uv-notice-card';
 import { PrecipitationNoticeCard } from '@/components/precipitation-notice-card';
 import { VisibilityNoticeCard } from '@/components/visibility-notice-card';
+import { PressureTrendCard } from '@/components/pressure-trend-card';
 
 export function WeatherPanel({ location }: { location: WeatherLocation }) {
   const [weather, setWeather] = useState<CurrentWeather>();
@@ -55,6 +56,7 @@ export function WeatherPanel({ location }: { location: WeatherLocation }) {
       {weather && <UvNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.uvHourly }} />}
       {weather && <PrecipitationNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.precipitationHourly }} />}
       {weather && <VisibilityNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.visibilityHourly }} />}
+      {weather && <PressureTrendCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.hourly }} />}
       {weather && <View style={styles.panel}>
         <Text accessibilityRole="header" style={styles.title}>Próximas 24 horas</Text>
         <Text style={styles.caption}>Pronóstico horario de modelos para {location.label}. Horas locales de {weather.timezone}; no son observaciones ni alertas.</Text>
