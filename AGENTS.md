@@ -46,6 +46,7 @@
 - Usar datos ficticios en desarrollo. Evitar recopilar datos personales que no sean necesarios.
 
 ## Continuidad
+- Mantener el README.md de la raíz actualizado con las funciones, validación y próximos pasos de cada entrega, ya que es la presentación del repositorio en GitHub.
 - Preferencia del usuario: cada vez que se cree un commit, subirlo también al repositorio remoto con push y verificar el resultado. No dejar commits locales pendientes de subida sin informar un bloqueo.
 - Al cerrar una etapa, actualizar estado, validación y siguiente paso en docs/PLAN.md.
 - Documentar las decisiones técnicas en docs/PROYECTO.md; no convertir propuestas en acuerdos sin indicarlo.
