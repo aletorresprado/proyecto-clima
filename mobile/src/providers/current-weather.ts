@@ -1,6 +1,7 @@
 export type WeatherLocation = { label: string; latitude: number; longitude: number; timezone?: string | null };
 export type ForecastHour = { time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
 export type UvHour = { time: number; uvIndex: number | null };
+export type VisibilityHour = { time: number; visibilityM: number | null };
 export type PrecipitationHour = { time: number; probability: number | null; amountMm: number | null };
 export type CurrentWeather = {
   temperatureC: number | null;
@@ -11,6 +12,7 @@ export type CurrentWeather = {
   timezone: string;
   hourly: ForecastHour[] | null;
   uvHourly: UvHour[] | null;
+  visibilityHourly: VisibilityHour[] | null;
   precipitationHourly: PrecipitationHour[] | null;
 };
 // Criterio provisional de presentación; no es un umbral de riesgo meteorológico.
@@ -21,6 +23,22 @@ export function isWeatherFresh(weather: CurrentWeather, now = Date.now()) {
 }
 const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const numeric = (value: unknown) => typeof value === 'number' && Number.isFinite(value) ? value : null;
+export function parseVisibilityForecast(payload: unknown, now: number): VisibilityHour[] | null {
+  if (!Number.isFinite(now) || !record(payload) || !record(payload.hourly) || !record(payload.hourly_units)) return null;
+  if (payload.hourly_units.time !== 'unixtime' || payload.hourly_units.visibility !== 'm') return null;
+  const { time, visibility } = payload.hourly;
+  if (!Array.isArray(time) || !Array.isArray(visibility) || time.length !== visibility.length) return null;
+  const hours: VisibilityHour[] = [];
+  for (let i = 0; i < time.length; i++) {
+    const seconds = numeric(time[i]);
+    if (seconds === null || seconds <= 0 || seconds * 1000 > 8640000000000000 || (i > 0 && seconds - time[i - 1] !== 3600)) return null;
+    const timestamp = seconds * 1000;
+    if (timestamp <= now || timestamp > now + 24 * 3600000) continue;
+    const value = numeric(visibility[i]);
+    hours.push({ time: timestamp, visibilityM: value !== null && value >= 0 ? value : null });
+  }
+  return hours;
+}
 export function parsePrecipitationForecast(payload: unknown, now: number): PrecipitationHour[] | null {
   if (!Number.isFinite(now) || !record(payload) || !record(payload.hourly) || !record(payload.hourly_units)) return null;
   const units = payload.hourly_units;
@@ -101,6 +119,7 @@ export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): C
     validAt: time * 1000, fetchedAt, timezone: payload.timezone,
     hourly: parseHourlyForecast(payload, fetchedAt),
     uvHourly: parseUvForecast(payload, fetchedAt),
+    visibilityHourly: parseVisibilityForecast(payload, fetchedAt),
     precipitationHourly: parsePrecipitationForecast(payload, fetchedAt),
   };
 }
@@ -113,7 +132,7 @@ export async function fetchCurrentWeather(location: WeatherLocation, signal: Abo
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation,visibility&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25`;
     let response: Response;
     try { response = await fetch(url, { signal: controller.signal }); }
     catch (error) {

@@ -40,6 +40,7 @@
     "test:wind": "node --test scripts/wind.test.mjs",
     "test:uv": "node --test scripts/uv.test.mjs",
     "test:precipitation": "node --test scripts/precipitation.test.mjs",
+    "test:visibility": "node --test scripts/visibility.test.mjs",
     "test:earthquakes": "node --test scripts/earthquakes.test.mjs",
     "start": "node ./scripts/start.cjs",
     "reset-project": "node ./scripts/reset-project.js",
