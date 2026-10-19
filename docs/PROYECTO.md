@@ -167,6 +167,7 @@ No recopilar medicamentos, documentos clínicos o diagnósticos adicionales sin 
 Definir consentimiento, retención, eliminación y exportación antes de habilitar almacenamiento real.
 
 ## 8. Stack y arquitectura
+Identificador Android aprobado y aplicado el 2026-10-19: com.aletorresprado.proyectoclima, verificado con expo config. Registro de esa app en Firebase pendiente del paso manual del usuario. Sin compilación ni integración de servicios todavía.
 Avance verificado del 2026-10-19: app vinculada al proyecto EAS [@aletorresprado/proyecto-clima](https://expo.dev/accounts/aletorresprado/projects/proyecto-clima), ID df17173d-6b25-496b-898c-c3ed2c117e6d, propietario personal autorizado por usuario. Firebase proyecto-clima-dev creado según reporte del usuario, configuración aún no inspeccionada; no hay integración Auth/Firestore. No se ejecutaron compilaciones ni se activó facturación. Identificador Android y biblioteca Google aún pendientes.
 Inicio de diseño de etapa 4 el 2026-10-19: ver [ETAPA-4.md](ETAPA-4.md). Propuesta de Firebase JS SDK para Auth/Firestore y Google nativo con compilación de desarrollo; SDK/biblioteca exactos, identificador Android y método de compilación pendientes. Se mantienen acuerdos Firebase/Google y modo básico sin cuenta. No se instalaron paquetes ni configuraron servicios.
 | Componente | Selección inicial |

@@ -47,7 +47,7 @@ No guardar correo, foto o nombre de Google en Firestore si la interfaz puede obt
 ## Próximas decisiones y acceso externo
 
 - Firebase proyecto-clima-dev informado por usuario; proyecto EAS vinculado y verificado. Próximo paso: confirmar identificador Android y elegir biblioteca Google compatible antes de registrar app/configurar acceso y preparar development build. No compartir contraseñas, tokens ni claves administrativas.
-- Propuesta de identificador Android: com.aletorresprado.proyectoclima (pendiente de aprobación; será identidad de la app al distribuirla).
+- Identificador Android aprobado por usuario y aplicado en mobile/app.json: com.aletorresprado.proyectoclima. expo config verificó la configuración resuelta. Próximo paso manual: registrar app Android en Firebase proyecto-clima-dev con exactamente ese paquete, alias Proyecto Clima Android Dev. SHA-1 pendiente de certificado real de compilación; no inventar valores. Descargar google-services.json sin editar Gradle manualmente; integración del archivo y biblioteca Google se harán después. No se afirma registro Firebase completado.
 - Elegir método de compilación y revisar biblioteca Google compatible. La primera visita externa será a Firebase Console, solo para inspeccionar/crear el entorno acordado con instrucciones precisas.
 - Inicio propuesto en Spark, dentro de sus cuotas; verificar condiciones actuales antes de crear servicios. No activar Blaze, Functions, Storage, Analytics ni publicar en Play como parte de este diseño.
 
