@@ -1,4 +1,4 @@
-# Proyecto Clima
+﻿# Proyecto Clima
 
 Fecha base: 2026-10-09. Estado al 2026-10-13: app mínima, selección de lugares y consulta meteorológica real validadas en Android 13, incluyendo cambio de localidad, actualización, error sin conexión y recuperación. Prueba específica de permiso rechazado pendiente. Sin infraestructura configurada.
 Nombre provisional: Proyecto Clima.
@@ -242,3 +242,11 @@ Revalidar al implementar; estas referencias no sustituyen revisar las condicione
 - https://support.google.com/googleplay/android-developer/answer/6112435
 - https://www.who.int/news-room/fact-sheets/detail/ultraviolet-radiation
 - https://pubmed.ncbi.nlm.nih.gov/37078741/
+
+## Avance del 19 de octubre: configuración Firebase Web
+
+El usuario guardó mobile/.env.local. npm.cmd run verify:firebase-web verificó los cuatro campos y que la app Web corresponde al mismo proyecto Android, sin imprimir valores. El archivo está ignorado por Git; mobile/.env.example contiene solo la plantilla. Tres pruebas ficticias verifican campos ausentes, proyecto/dominio incorrectos y confusión entre appId Web y Android.
+
+Se preparó getFirebaseClient con inicialización explícita y reutilización de instancia. Todavía no se conecta a la pantalla ni implementa Auth, persistencia de sesión o Firestore. Instalado Firebase 13.0.0; TypeScript, 63 pruebas y expo install --check correctos. Próximo paso: preparar persistencia Auth y elegir el proveedor Google compatible antes de la primera development build. Sin nuevas activaciones externas ni facturación.
+
+Auditoría del incremento: instalación informó 33 hallazgos (11 moderados, 22 altos); consulta independiente posterior informó 71 dependencias afectadas (9 moderadas, 62 altas), incluidas cadenas de Expo/React Native y Firebase. Pendiente revisión antes de distribuir; sin correcciones forzadas. No se probó acceso Google ni persistencia de sesión en teléfono.

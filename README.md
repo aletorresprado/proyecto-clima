@@ -2,7 +2,7 @@
 
 App Android para consultar el clima y organizar actividades con recomendaciones preventivas comprensibles. Desarrollada con React Native, Expo SDK 57 y TypeScript.
 
-**Estado al 18 de octubre de 2026:** alcance inicial de etapa 3 completado. Condiciones actuales, pronóstico de 24 horas, viento, UV, precipitación, visibilidad y variación de presión validados funcionalmente en un teléfono Android 13 con Expo Go. Monitoreo de eventos sísmicos recientes integrado y probado con consultas reales y escenarios ficticios.
+**Estado al 19 de octubre de 2026:** alcance inicial de etapa 3 completado. Condiciones actuales, pronóstico de 24 horas, viento, UV, precipitación, visibilidad y variación de presión validados funcionalmente en un teléfono Android 13 con Expo Go. Monitoreo de eventos sísmicos recientes integrado y probado con consultas reales y escenarios ficticios.
 
 ## Funciones disponibles
 
@@ -70,6 +70,8 @@ npm.cmd run test:precipitation
 npm.cmd run test:visibility
 npm.cmd run test:pressure
 npm.cmd run test:earthquakes
+npm.cmd run test:firebase-config
+npm.cmd run verify:firebase-web
 npm.cmd run verify:firebase-android
 npx.cmd expo install --check
 npx.cmd expo export --platform android --output-dir .expo/export-check
@@ -87,10 +89,18 @@ Las variables de caché y temporales se aplican solo a la terminal actual. Se us
 
 Antes de elegir un lugar se muestra una demo explícitamente ficticia. La búsqueda y consulta meteorológica requieren acciones del usuario; se informa el envío de texto o coordenadas al proveedor. El monitoreo sísmico se activa por separado y consulta la ubicación del teléfono en cada ciclo, independientemente de la localidad elegida para el clima. No usa seguimiento en segundo plano.
 
-AsyncStorage guarda únicamente IDs sísmicos vistos para evitar repetir avisos; el historial ficticio usa otra clave. La app no persiste las coordenadas ni recopila datos de salud. No hay Firebase, autenticación, push, servicios de nube ni facturación configurados.
+AsyncStorage guarda únicamente IDs sísmicos vistos para evitar repetir avisos; el historial ficticio usa otra clave. La app no persiste las coordenadas ni recopila datos de salud. Firebase JS instalado y configuración local validada. Sin autenticación integrada, push ni facturación activada.
 
 Fuentes: [Open-Meteo](https://open-meteo.com/en/docs), [Open-Meteo/GeoNames](https://open-meteo.com/en/docs/geocoding-api), [USGS](https://earthquake.usgs.gov/fdsnws/event/1/), [OMS para UV](https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index) y [NWS como referencia descriptiva de viento](https://www.weather.gov/tbw/beaufort). Uso inicial no comercial de Open-Meteo, con atribución CC BY 4.0; revisar condiciones antes de monetizar.
 
 ## Próximos pasos
 
-La **etapa 4 está en preparación**: [Firebase y acceso](docs/ETAPA-4.md), preservando la consulta meteorológica sin cuenta. La app está vinculada al [proyecto Expo](https://expo.dev/accounts/aletorresprado/projects/proyecto-clima), con identificador Android `com.aletorresprado.proyectoclima`. Firebase proyecto-clima-dev tiene su configuración Android validada localmente; SDK JS/Auth/Firestore y acceso Google aún sin integrar. expo-dev-client y perfil de compilación preparados, sin APK creado ni facturación activada. Próximo paso: registro web en el mismo Firebase para configuración JS, sin crear Hosting. Perfil de salud, notificaciones con la app cerrada y publicación pertenecen a etapas posteriores.
+La **etapa 4 está en preparación**: [Firebase y acceso](docs/ETAPA-4.md), preservando la consulta meteorológica sin cuenta. La app está vinculada al [proyecto Expo](https://expo.dev/accounts/aletorresprado/projects/proyecto-clima), con identificador Android `com.aletorresprado.proyectoclima`. Firebase proyecto-clima-dev tiene su configuración Android validada localmente; SDK JS 13.0.0 instalado con inicialización explícita preparada; Auth/Firestore y acceso Google aún sin integrar. expo-dev-client y perfil de compilación preparados, sin APK creado ni facturación activada. Registro Web completado y validado. Próximo paso: persistencia Auth y proveedor Google para la development build. Perfil de salud, notificaciones con la app cerrada y publicación pertenecen a etapas posteriores.
+
+## Avance del 19 de octubre: configuración Firebase Web
+
+El usuario guardó mobile/.env.local. npm.cmd run verify:firebase-web verificó los cuatro campos y que la app Web corresponde al mismo proyecto Android, sin imprimir valores. El archivo está ignorado por Git; mobile/.env.example contiene solo la plantilla. Tres pruebas ficticias verifican campos ausentes, proyecto/dominio incorrectos y confusión entre appId Web y Android.
+
+Se preparó getFirebaseClient con inicialización explícita y reutilización de instancia. Todavía no se conecta a la pantalla ni implementa Auth, persistencia de sesión o Firestore. Instalado Firebase 13.0.0; TypeScript, 63 pruebas y expo install --check correctos. Próximo paso: preparar persistencia Auth y elegir el proveedor Google compatible antes de la primera development build. Sin nuevas activaciones externas ni facturación.
+
+Auditoría del incremento: instalación informó 33 hallazgos (11 moderados, 22 altos); consulta independiente posterior informó 71 dependencias afectadas (9 moderadas, 62 altas), incluidas cadenas de Expo/React Native y Firebase. Pendiente revisión antes de distribuir; sin correcciones forzadas. No se probó acceso Google ni persistencia de sesión en teléfono.

@@ -1,4 +1,4 @@
-# Etapa 4 — Firebase y acceso
+﻿# Etapa 4 — Firebase y acceso
 
 Revisión inicial: 2026-10-19. Diseño propuesto; sin servicios creados, paquetes instalados ni facturación activada.
 Actualización de entorno informada por el usuario: cuenta Expo creada y proyecto Firebase de desarrollo con ID proyecto-clima-dev creado desde consola. No se verificó la configuración externa; Authentication/Firestore no se han integrado. Proyecto EAS todavía sin vincular. El encabezado anterior describe el inicio de la revisión.
@@ -14,6 +14,8 @@ Vinculación verificada el 2026-10-19: EAS @aletorresprado/proyecto-clima, ID df
 ## Revisión técnica
 
 ### Preparación local verificada — 2026-10-19
+
+- Usuario confirmó las apps Android y Web registradas en la consola. Preparados mobile/.env.local (ignorado por Git, pendiente de valores web) y mobile/.env.example (plantilla sin valores). Campos mínimos: apiKey, authDomain, projectId y appId de la app Web; no copiar el appId Android. EXPO_PUBLIC son valores de cliente incluidos en el bundle, no secretos administrativos ni mecanismo de autorización. No se ha inicializado Firebase JS todavía.
 
 - Usuario completó registro Android y guardó mobile/google-services.json. Verificados project_id proyecto-clima-dev y paquete com.aletorresprado.proyectoclima; Git ignora el archivo. No se imprime ni se versiona su contenido. La configuración no contiene cliente OAuth web todavía.
 - Agregado npm.cmd run verify:firebase-android: valida proyecto, paquete, presencia de configuración API y cliente OAuth web sin imprimir claves. Es verificación de archivo local, no prueba de servicios, acceso ni reglas externas.
@@ -70,3 +72,11 @@ No guardar correo, foto o nombre de Google en Firestore si la interfaz puede obt
 - https://docs.expo.dev/build/introduction/
 - https://firebase.google.com/docs/emulator-suite/install_and_configure
 - https://firebase.google.com/docs/firestore/security/rules-conditions
+
+## Avance del 19 de octubre: configuración Firebase Web
+
+El usuario guardó mobile/.env.local. npm.cmd run verify:firebase-web verificó los cuatro campos y que la app Web corresponde al mismo proyecto Android, sin imprimir valores. El archivo está ignorado por Git; mobile/.env.example contiene solo la plantilla. Tres pruebas ficticias verifican campos ausentes, proyecto/dominio incorrectos y confusión entre appId Web y Android.
+
+Se preparó getFirebaseClient con inicialización explícita y reutilización de instancia. Todavía no se conecta a la pantalla ni implementa Auth, persistencia de sesión o Firestore. Instalado Firebase 13.0.0; TypeScript, 63 pruebas y expo install --check correctos. Próximo paso: preparar persistencia Auth y elegir el proveedor Google compatible antes de la primera development build. Sin nuevas activaciones externas ni facturación.
+
+Auditoría del incremento: instalación informó 33 hallazgos (11 moderados, 22 altos); consulta independiente posterior informó 71 dependencias afectadas (9 moderadas, 62 altas), incluidas cadenas de Expo/React Native y Firebase. Pendiente revisión antes de distribuir; sin correcciones forzadas. No se probó acceso Google ni persistencia de sesión en teléfono.
