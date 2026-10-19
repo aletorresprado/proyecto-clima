@@ -13,6 +13,18 @@ Vinculación verificada el 2026-10-19: EAS @aletorresprado/proyecto-clima, ID df
 
 ## Revisión técnica
 
+### Preparación local verificada — 2026-10-19
+
+- Usuario completó registro Android y guardó mobile/google-services.json. Verificados project_id proyecto-clima-dev y paquete com.aletorresprado.proyectoclima; Git ignora el archivo. No se imprime ni se versiona su contenido. La configuración no contiene cliente OAuth web todavía.
+- Agregado npm.cmd run verify:firebase-android: valida proyecto, paquete, presencia de configuración API y cliente OAuth web sin imprimir claves. Es verificación de archivo local, no prueba de servicios, acceso ni reglas externas.
+- Instalado expo-dev-client 57.0.20, compatible con SDK 57. Parches alineados: expo 57.0.30, expo-router 57.0.28, @expo/ui 57.0.25. Auditoría conserva 29 hallazgos conocidos (11 moderados, 18 altos); sin audit fix --force.
+- Agregado eas.json con perfil development, developmentClient=true, distribución internal y APK Android. No se ejecutó EAS Build, no se generó certificado SHA-1 ni se subió google-services.json a EAS. El archivo Android todavía no está conectado como googleServicesFile en app.json: esa integración depende de la biblioteca nativa elegida.
+- npm.cmd start fuerza Expo Go para preservar el flujo actual; npm.cmd run start:dev usa --dev-client cuando exista APK instalado. Comprobación local del lanzador con proceso simulado verificó selección de ambos modos. No se afirma prueba de arranque nueva en teléfono.
+- TypeScript, 60 pruebas, expo install --check y bundle Android (1281 módulos) correctos. Estas comprobaciones no validan todavía módulos nativos en un APK.
+- Firebase JS SDK aún no instalado. La guía oficial de Expo requiere registrar una app web para obtener su firebaseConfig; el archivo Android no sustituye ese registro. Próximo paso manual: agregar app web en el mismo proyecto proyecto-clima-dev, sin Hosting, para configuración JS. Esto no crea un sitio web. Después conectar Auth/persistencia y revisar biblioteca Google/Credential Manager antes de crear un build.
+
+Los puntos siguientes conservan la revisión inicial; el estado anterior de EAS/paquete/dependencias queda reemplazado por las verificaciones de esta sección.
+
 - La app actual usa Expo SDK 57, React Native 0.86.3 y React 19.2.3; Firebase y EAS no están configurados. Falta definir android.package y una URL scheme propia.
 - Firebase JS SDK admite Auth/Firestore en React Native y Expo Go. Expo exige firebase >=12; seleccionar versión estable compatible al instalar, sin tomar esta cifra como versión exacta fijada.
 - El acceso Google nativo descrito por Expo necesita código nativo y una development build. Expo Go por sí solo no valida ese acceso. La app seguirá usando Metro durante el desarrollo con una compilación propia instalada en el teléfono.
@@ -46,7 +58,7 @@ No guardar correo, foto o nombre de Google en Firestore si la interfaz puede obt
 
 ## Próximas decisiones y acceso externo
 
-- Firebase proyecto-clima-dev informado por usuario; proyecto EAS vinculado y verificado. Próximo paso: confirmar identificador Android y elegir biblioteca Google compatible antes de registrar app/configurar acceso y preparar development build. No compartir contraseñas, tokens ni claves administrativas.
+- Proyecto EAS vinculado/verificado; configuración Android Firebase proyecto-clima-dev validada localmente. Próximo paso: registro web en ese mismo proyecto para Firebase JS SDK y revisión de biblioteca Google compatible. No compartir contraseñas, tokens ni claves administrativas.
 - Identificador Android aprobado por usuario y aplicado en mobile/app.json: com.aletorresprado.proyectoclima. expo config verificó la configuración resuelta. Próximo paso manual: registrar app Android en Firebase proyecto-clima-dev con exactamente ese paquete, alias Proyecto Clima Android Dev. SHA-1 pendiente de certificado real de compilación; no inventar valores. Descargar google-services.json sin editar Gradle manualmente; integración del archivo y biblioteca Google se harán después. No se afirma registro Firebase completado.
 - Elegir método de compilación y revisar biblioteca Google compatible. La primera visita externa será a Firebase Console, solo para inspeccionar/crear el entorno acordado con instrucciones precisas.
 - Inicio propuesto en Spark, dentro de sus cuotas; verificar condiciones actuales antes de crear servicios. No activar Blaze, Functions, Storage, Analytics ni publicar en Play como parte de este diseño.

@@ -38,6 +38,8 @@ npm.cmd start
 
 El lanzador scripts/start.cjs prepara automáticamente certificados de Windows, telemetría desactivada y caché/temporales en .cache del repositorio. Inicia Expo por LAN en puerto 8081. No instala dependencias ni cambia variables globales o la política de PowerShell. Cada terminal nueva puede usar el mismo comando.
 
+`npm.cmd start` mantiene explícitamente Expo Go. Se agregó `npm.cmd run start:dev` para cuando esté instalada nuestra compilación de desarrollo; el perfil APK está preparado en `mobile/eas.json`, pero todavía no se creó esa compilación.
+
 ### Solo para instalar dependencias en otra copia
 
 ```powershell
@@ -68,6 +70,7 @@ npm.cmd run test:precipitation
 npm.cmd run test:visibility
 npm.cmd run test:pressure
 npm.cmd run test:earthquakes
+npm.cmd run verify:firebase-android
 npx.cmd expo install --check
 npx.cmd expo export --platform android --output-dir .expo/export-check
 ```
@@ -75,6 +78,8 @@ npx.cmd expo export --platform android --output-dir .expo/export-check
 Ejecutar desde `mobile`. Incremento de presión: TypeScript, **60 pruebas automatizadas**, bundle Android y validación funcional en teléfono correctos. Las pruebas cubren límites, unidades, datos ausentes, vencimiento, intervalos y persistencia/deduplicación de IDs.
 
 La exportación comprueba el bundle, no genera una app publicable. En Android 13 se verificaron navegación, actualización y cambio de localidad, errores de conexión y recuperación, permisos y escenarios ficticios. La persistencia sísmica se probó con eventos ficticios aislados; no se verificó la recepción de un sismo real cercano.
+
+`verify:firebase-android` requiere el archivo local ignorado `mobile/google-services.json`; verifica proyecto/paquete sin imprimir claves. En una copia sin configuración local este comando informará que falta el archivo. No prueba autenticación ni reglas de Firebase. Preparación de etapa 4 comprobada con expo-dev-client 57.0.20 y parches compatibles del SDK 57 (expo 57.0.30, router 57.0.28 y @expo/ui 57.0.25).
 
 Las variables de caché y temporales se aplican solo a la terminal actual. Se usan en este equipo porque C no tenía espacio libre; no cambian la configuración global ni la política de scripts.
 
@@ -88,4 +93,4 @@ Fuentes: [Open-Meteo](https://open-meteo.com/en/docs), [Open-Meteo/GeoNames](htt
 
 ## Próximos pasos
 
-La **etapa 4 está en preparación**: [Firebase y acceso](docs/ETAPA-4.md), preservando la consulta meteorológica sin cuenta. La app ya está vinculada al [proyecto Expo](https://expo.dev/accounts/aletorresprado/projects/proyecto-clima) de aletorresprado, con identificador Android aprobado `com.aletorresprado.proyectoclima`. El usuario creó Firebase proyecto-clima-dev; registro Android e integración Auth/Firestore pendientes. Biblioteca Google y primera compilación de desarrollo pendientes; no se activó facturación. Perfil de salud opcional, notificaciones con la app cerrada y publicación en Google Play pertenecen a etapas posteriores. Revisar también los hallazgos de auditoría de dependencias registrados en el plan antes de distribuir.
+La **etapa 4 está en preparación**: [Firebase y acceso](docs/ETAPA-4.md), preservando la consulta meteorológica sin cuenta. La app está vinculada al [proyecto Expo](https://expo.dev/accounts/aletorresprado/projects/proyecto-clima), con identificador Android `com.aletorresprado.proyectoclima`. Firebase proyecto-clima-dev tiene su configuración Android validada localmente; SDK JS/Auth/Firestore y acceso Google aún sin integrar. expo-dev-client y perfil de compilación preparados, sin APK creado ni facturación activada. Próximo paso: registro web en el mismo Firebase para configuración JS, sin crear Hosting. Perfil de salud, notificaciones con la app cerrada y publicación pertenecen a etapas posteriores.

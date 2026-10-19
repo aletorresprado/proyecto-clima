@@ -10,9 +10,12 @@ mkdirSync(tempDirectory, { recursive: true });
 mkdirSync(npmCacheDirectory, { recursive: true });
 
 const nodeOptions = process.env.NODE_OPTIONS || '';
+const launchArguments = process.argv.slice(2);
+const clientArguments = launchArguments.includes('--dev-client') || launchArguments.includes('--go')
+  ? [] : ['--go'];
 const child = spawn(
   process.execPath,
-  [path.join(appDirectory, 'node_modules', 'expo', 'bin', 'cli'), 'start', '--lan', '--port', '8081', ...process.argv.slice(2)],
+  [path.join(appDirectory, 'node_modules', 'expo', 'bin', 'cli'), 'start', ...clientArguments, '--lan', '--port', '8081', ...launchArguments],
   {
     cwd: appDirectory,
     stdio: 'inherit',
