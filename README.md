@@ -88,4 +88,4 @@ Fuentes: [Open-Meteo](https://open-meteo.com/en/docs), [Open-Meteo/GeoNames](htt
 
 ## Próximos pasos
 
-El próximo paso es revisar el diseño de **Firebase y acceso (etapa 4)**, preservando la consulta meteorológica sin cuenta. Todavía no hay servicios configurados; no se activa facturación automáticamente. Perfil de salud opcional, notificaciones con la app cerrada y publicación en Google Play pertenecen a etapas posteriores. Revisar también los hallazgos de auditoría de dependencias registrados en el plan antes de distribuir.
+La **etapa 4 está en diseño**: [Firebase y acceso](docs/ETAPA-4.md), preservando la consulta meteorológica sin cuenta. Se revisaron sesión con Google, lugares/preferencias y aislamiento por usuario; biblioteca y compilación propia pendientes de elección. Todavía no hay servicios configurados; no se activa facturación automáticamente. Perfil de salud opcional, notificaciones con la app cerrada y publicación en Google Play pertenecen a etapas posteriores. Revisar también los hallazgos de auditoría de dependencias registrados en el plan antes de distribuir.

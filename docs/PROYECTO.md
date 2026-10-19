@@ -167,6 +167,7 @@ No recopilar medicamentos, documentos clínicos o diagnósticos adicionales sin 
 Definir consentimiento, retención, eliminación y exportación antes de habilitar almacenamiento real.
 
 ## 8. Stack y arquitectura
+Inicio de diseño de etapa 4 el 2026-10-19: ver [ETAPA-4.md](ETAPA-4.md). Propuesta de Firebase JS SDK para Auth/Firestore y Google nativo con compilación de desarrollo; SDK/biblioteca exactos, identificador Android y método de compilación pendientes. Se mantienen acuerdos Firebase/Google y modo básico sin cuenta. No se instalaron paquetes ni configuraron servicios.
 | Componente | Selección inicial |
 | --- | --- |
 | Editor | Visual Studio Code con Codex |

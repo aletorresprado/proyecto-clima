@@ -147,6 +147,7 @@ Estado: alcance inicial completado el 2026-10-18. Viento experimental >=40 km/h,
 - Cierre de esta entrega: usuario confirmó en Android 13 regreso con Atrás, actualización y cambio de localidad sin duplicar tarjetas ni conservar la del lugar anterior. Primera entrega experimental de viento validada funcionalmente. Etapa 3 no completada: otros módulos/umbrales y validación de contenidos pendientes.
 
 ## Etapa 4 — Firebase y acceso
+- Revisión de diseño iniciada el 2026-10-19; propuesta detallada en ETAPA-4.md. No hay paquetes ni servicios configurados. SDK, biblioteca Google, identificador Android y compilación aún pendientes de acuerdo/verificación.
 - Crear o seleccionar proyecto Firebase con autorización del usuario.
 - Elegir SDK compatible con la estrategia Expo.
 - Configurar Authentication y Google Sign-In; conservar modo sin cuenta.
@@ -203,6 +204,7 @@ No avanzar automáticamente a servicios pagos o publicación.
 No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 
 ## Registro de continuidad
+- 2026-10-19: etapa 4 iniciada en diseño. Revisión oficial Expo/Firebase: JS SDK permite Auth/Firestore en Expo Go; acceso Google nativo requiere development build. Diseño en ETAPA-4.md separa sesión, lugares/preferencias y reglas por uid con pruebas de aislamiento antes de datos personales. No se instalaron dependencias ni crearon servicios. Cuenta Expo/proyecto Firebase consultados al usuario; decisiones externas pendientes.
 - 2026-10-18: usuario confirmó las pruebas finales de presión en Android 13: regreso, tarjeta única al actualizar, cambio de localidad con horarios separados 3 h, error sin conexión y recuperación al reconectar/reconsultar. Ejemplos ficticios ya confirmados. Primera entrega de presión validada; alcance inicial de etapa 3 completado (viento, UV, precipitación, visibilidad y presión informativa). TypeScript, 60 pruebas y bundle Android (1281 módulos) correctos. README revisado; cierre con commit+push autorizado. Etapa 4 pendiente de diseño y selección de SDK; no configurar servicios ni facturación sin autorización.
 - 2026-10-18: usuario confirmó tarjeta de variación prevista de presión en Android y cambio de los ejemplos ficticios. Validación visual inicial completada. Pendientes: regreso, actualización/cambio sin duplicados y error/recuperación del flujo actual antes de cierre y commit+push. No se considera confirmada una revisión numérica detallada.
 - 2026-10-18: usuario aprobó avanzar con variación informativa de presión. Regla pura, tarjeta y cinco escenarios implementados sin dependencias, variables API ni consultas adicionales en la app. Usa primera hora futura y +3h con cuatro puntos consecutivos válidos, hPa al nivel del mar, diferencia a una décima sin -0.0, sin umbral de peligro ni inferencias meteorológicas/sanitarias. TypeScript, 60 pruebas y bundle Android (1281 módulos) pasaron. Consulta completa PC falló por HTTP no exitoso; consulta específica pressure_msl posterior dio 200 y evaluación válida de 3h. README actualizado; Android pendiente antes de commit+push y cierre de etapa 3.
@@ -238,4 +240,4 @@ No bloquear cambios locales rutinarios con confirmaciones innecesarias.
 - 2026-10-09: conflicto de npm resuelto con respaldo autorizado; versiones efectivas verificadas en PowerShell nuevo: Node 24.20.0, npm.cmd/npx.cmd 11.19.0. Sin creación de app.
 - 2026-10-09: app mínima autorizada, creada en mobile con datos ficticios; tipos, compatibilidad de dependencias y bundle Android verificados. Metro iniciado; apertura real en Expo Go pendiente de confirmación.
 - 2026-10-13: etapa 1 completada con confirmación del usuario de arranque y navegación en Android 13.
-- Próximo paso: revisar diseño de etapa 4 (Firebase/acceso), estrategia SDK/Expo y alcance de ubicaciones/preferencias guardadas, preservando modo meteorológico sin cuenta. No crear servicios ni activar facturación antes de autorización. Mantener README y commit+push con cada entrega.
+- Próximo paso: confirmar cuentas existentes, identificador Android y estrategia de compilación del diseño ETAPA-4.md; después preparar configuración local y guiar acceso autorizado a Firebase Console. Preservar modo sin cuenta, sin salud ni facturación. Mantener README y commit+push con cada entrega.
