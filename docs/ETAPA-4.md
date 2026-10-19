@@ -1,6 +1,8 @@
 # Etapa 4 — Firebase y acceso
 
 Revisión inicial: 2026-10-19. Diseño propuesto; sin servicios creados, paquetes instalados ni facturación activada.
+Actualización de entorno informada por el usuario: cuenta Expo creada y proyecto Firebase de desarrollo con ID proyecto-clima-dev creado desde consola. No se verificó la configuración externa; Authentication/Firestore no se han integrado. Proyecto EAS todavía sin vincular. El encabezado anterior describe el inicio de la revisión.
+Vinculación verificada el 2026-10-19: EAS @aletorresprado/proyecto-clima, ID df17173d-6b25-496b-898c-c3ed2c117e6d. Sesión personal aletorresprado verificada; usuario autorizó avanzar tras elegir esa cuenta. eas init --account aletorresprado --non-interactive creó y vinculó el proyecto, registrado en mobile/app.json (owner y extra.eas.projectId). eas project:info confirmó nombre e ID. No se ejecutaron builds ni se activó facturación. EAS CLI se usó con npx y caché en D, sin dependencia global ni de la app. Las notas anteriores de vínculo pendiente son históricas.
 
 ## Acuerdos previos
 
@@ -44,7 +46,7 @@ No guardar correo, foto o nombre de Google en Firestore si la interfaz puede obt
 
 ## Próximas decisiones y acceso externo
 
-- Confirmar si ya existen proyecto Firebase y cuenta Expo. No compartir contraseñas, tokens ni claves administrativas.
+- Firebase proyecto-clima-dev informado por usuario; proyecto EAS vinculado y verificado. Próximo paso: confirmar identificador Android y elegir biblioteca Google compatible antes de registrar app/configurar acceso y preparar development build. No compartir contraseñas, tokens ni claves administrativas.
 - Propuesta de identificador Android: com.aletorresprado.proyectoclima (pendiente de aprobación; será identidad de la app al distribuirla).
 - Elegir método de compilación y revisar biblioteca Google compatible. La primera visita externa será a Firebase Console, solo para inspeccionar/crear el entorno acordado con instrucciones precisas.
 - Inicio propuesto en Spark, dentro de sus cuotas; verificar condiciones actuales antes de crear servicios. No activar Blaze, Functions, Storage, Analytics ni publicar en Play como parte de este diseño.
