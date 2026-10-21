@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.aletorresprado.proyectoclima",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -26,6 +27,7 @@
     },
     "plugins": [
       "expo-router",
+      "react-native-nitro-google-signin",
       [
         "expo-splash-screen",
         {

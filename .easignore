@@ -1,0 +1,32 @@
+# Archive rooted at the repository. Git exclusions remain unchanged.
+.git/
+.cache/
+node_modules/
+.expo/
+dist/
+web-build/
+.env
+.env.*
+.kotlin/
+*.orig.*
+*.jks
+*.keystore
+credentials.json
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.tsbuildinfo
+mobile/expo-env.d.ts
+mobile/example/
+mobile/android/
+mobile/ios/
+google-services.json
+# These client configs are sent only when a build is explicitly authorized.
+!mobile/google-services.json
+!mobile/.env.local

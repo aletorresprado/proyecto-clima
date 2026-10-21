@@ -15,6 +15,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.eyebrow}>TU DÍA, CON CONTEXTO</Text>
         <Text accessibilityRole="header" style={styles.title}>Proyecto Clima</Text>
+        <Link href="/account" style={styles.link}>Tu cuenta · acceso opcional →</Link>
         {!location && <View style={styles.demo}>
           <Text style={styles.badge}>DEMOSTRACIÓN · DATOS FICTICIOS</Text>
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>

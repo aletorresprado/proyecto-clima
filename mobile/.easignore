@@ -1,0 +1,33 @@
+# App-root archive rules. Keep aligned with the repository .easignore.
+.git/
+.cache/
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.kotlin/
+*.orig.*
+*.jks
+*.keystore
+credentials.json
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+.env
+.env.*
+*.tsbuildinfo
+example/
+/android/
+/ios/
+google-services.json
+# Public Firebase client configuration; never add administrative secrets here.
+!google-services.json
+!.env.local
