@@ -6,6 +6,7 @@ import { demoWeather } from '@/data/demo-weather';
 import { LocationPicker } from '@/components/location-picker';
 import { WeatherPanel } from '@/components/weather-panel';
 import { EarthquakeCard } from '@/components/earthquake-monitor';
+import { AccountLink } from '@/components/account-link';
 import type { WeatherLocation } from '@/providers/current-weather';
 
 export default function HomeScreen() {
@@ -15,7 +16,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.eyebrow}>TU DÍA, CON CONTEXTO</Text>
         <Text accessibilityRole="header" style={styles.title}>Proyecto Clima</Text>
-        <Link href="/account" style={styles.link}>Tu cuenta · acceso opcional →</Link>
+        <AccountLink />
         {!location && <View style={styles.demo}>
           <Text style={styles.badge}>DEMOSTRACIÓN · DATOS FICTICIOS</Text>
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>
