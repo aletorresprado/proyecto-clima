@@ -1,5 +1,5 @@
 ﻿import { Link } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { demoWeather } from '@/data/demo-weather';
@@ -7,10 +7,15 @@ import { LocationPicker } from '@/components/location-picker';
 import { WeatherPanel } from '@/components/weather-panel';
 import { EarthquakeCard } from '@/components/earthquake-monitor';
 import { AccountLink } from '@/components/account-link';
+import { SavedLocationsCard } from '@/components/saved-locations-card';
 import type { WeatherLocation } from '@/providers/current-weather';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<WeatherLocation>();
+  const savedOwner = useRef<string | null>(null);
+  const onSessionChange = useCallback((uid: string | null) => {
+    if (savedOwner.current && savedOwner.current !== uid) { savedOwner.current = null; setLocation(undefined); }
+  }, []);
   return (
     <SafeAreaView style={styles.page}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -21,7 +26,9 @@ export default function HomeScreen() {
           <Text style={styles.badge}>DEMOSTRACIÓN · DATOS FICTICIOS</Text>
           <Text style={styles.body}>Estos valores sirven para probar la app. No describen el clima real ni son alertas oficiales.</Text>
         </View>}
-        <LocationPicker onSelect={setLocation} />
+        <LocationPicker selected={location} onSelect={(place) => { savedOwner.current = null; setLocation(place); }} />
+        <SavedLocationsCard selected={location} onSessionChange={onSessionChange}
+          onSelect={(place, uid) => { savedOwner.current = uid; setLocation(place); }} />
         <EarthquakeCard />
         {location ? <WeatherPanel key={`${location.latitude}:${location.longitude}:${location.label}`} location={location} /> : <>
         <Text style={styles.place}>Escenario ficticio: {demoWeather.place}</Text>

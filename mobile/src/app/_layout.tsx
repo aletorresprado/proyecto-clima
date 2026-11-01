@@ -9,6 +9,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="explore" options={{ title: 'Detalle del ejemplo' }} />
         <Stack.Screen name="account" options={{ title: 'Tu cuenta' }} />
+        <Stack.Screen name="saved-locations-demo" options={{ title: 'Pruebas ficticias de lugares' }} />
         <Stack.Screen name="wind-demo" options={{ title: 'Pruebas ficticias de viento' }} />
         <Stack.Screen name="earthquake-demo" options={{ title: 'Pruebas ficticias de sismos' }} />
         <Stack.Screen name="uv-demo" options={{ title: 'Pruebas ficticias de UV' }} />

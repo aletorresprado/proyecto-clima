@@ -4,9 +4,8 @@ import { suggestDeviceLocation } from '@/providers/device-location';
 import { searchLocations, type SearchPlace } from '@/providers/search-locations';
 import type { WeatherLocation } from '@/providers/current-weather';
 
-export function LocationPicker({ onSelect }: { onSelect: (place: WeatherLocation) => void }) {
+export function LocationPicker({ onSelect, selected }: { onSelect: (place: WeatherLocation) => void; selected?: WeatherLocation }) {
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<{ label: string; latitude: number; longitude: number; timezone?: string | null }>();
   const [suggestion, setSuggestion] = useState<{ label: string; hasPlaceName: boolean; latitude: number; longitude: number }>();
   const [results, setResults] = useState<SearchPlace[]>([]);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
@@ -85,7 +84,7 @@ export function LocationPicker({ onSelect }: { onSelect: (place: WeatherLocation
           <Text style={styles.body}>{suggestion.hasPlaceName
             ? 'Nombre sugerido por el servicio del sistema. Confirmá si corresponde al lugar que querés consultar; si no, descartalo y usá la selección manual.'
             : 'Obtuvimos coordenadas, pero no pudimos resolver una localidad. Podés confirmarlas, reintentar con conexión o elegir un lugar manualmente.'}</Text>
-          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { setSelected(suggestion); onSelect(suggestion); setSuggestion(undefined); }}>
+          <Pressable accessibilityRole="button" style={styles.button} onPress={() => { onSelect(suggestion); setSuggestion(undefined); }}>
             <Text style={styles.buttonText}>Confirmar esta ubicación</Text>
           </Pressable>
           <Pressable accessibilityRole="button" onPress={() => setSuggestion(undefined)} style={styles.secondary}>
@@ -102,7 +101,7 @@ export function LocationPicker({ onSelect }: { onSelect: (place: WeatherLocation
       {searchStatus === 'loading' && <ActivityIndicator color="#126271" accessibilityLabel="Buscando localidades" />}
       {searchMessage !== '' && <Text accessibilityLiveRegion="polite" style={styles.body}>{searchMessage}</Text>}
       {results.map((place) => (
-        <Pressable key={place.id} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { setSelected(place); onSelect(place); setSuggestion(undefined); setMessage(''); changeQuery(''); }}>
+        <Pressable key={place.id} accessibilityRole="button" disabled={busy} style={styles.secondary} onPress={() => { onSelect(place); setSuggestion(undefined); setMessage(''); changeQuery(''); }}>
           <Text style={styles.action}>Elegir {place.label}</Text>
         </Pressable>
       ))}
