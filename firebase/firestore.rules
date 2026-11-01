@@ -1,4 +1,4 @@
-// BORRADOR LOCAL: no desplegar antes de probar aislamiento con el emulador.
+// Reglas validadas en el emulador local; acceso limitado al propietario.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {

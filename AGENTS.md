@@ -3,7 +3,7 @@
 ## Contexto y fuentes
 - Este repositorio inicia una app Android de prevención basada en datos meteorológicos.
 - Antes de actuar, leer docs/PROYECTO.md y docs/PLAN.md. Distinguir acuerdos, propuestas y pendientes.
-- La documentación parte de la planificación del 9 de octubre de 2026 y registra avances posteriores. Hay una app mínima en mobile; revisar docs/PLAN.md para su validación actual. No hay servicios configurados.
+- La documentación parte de la planificación del 9 de octubre de 2026 y registra avances posteriores. Hay una app Android en mobile; revisar docs/PLAN.md para su validación actual. Firebase Authentication y Firestore Standard en Spark están configurados; acceso y lugares guardados validados en Android. No hay facturación activada ni publicación en tienda.
 - Las instrucciones actuales del usuario prevalecen. Actualizar la documentación cuando cambien decisiones.
 
 ## Forma de colaborar
