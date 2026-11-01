@@ -1,0 +1,39 @@
+// BORRADOR LOCAL: no desplegar antes de probar aislamiento con el emulador.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validLocation(data) {
+      return data.keys().hasAll(['label', 'latitude', 'longitude', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['label', 'latitude', 'longitude', 'createdAt', 'updatedAt'])
+        && data.label is string
+        && data.label.size() >= 1 && data.label.size() <= 160
+        && data.label.matches('.*\\S.*')
+        && data.latitude is number && data.latitude >= -90 && data.latitude <= 90
+        && data.longitude is number && data.longitude >= -180 && data.longitude <= 180
+        && data.createdAt is timestamp && data.updatedAt is timestamp;
+    }
+
+    match /users/{uid}/locations/{locationId} {
+      allow get: if owns(uid);
+      // El cliente deberá paginar explícitamente: no suscribir listas ilimitadas.
+      allow list: if owns(uid) && request.query.limit != null
+        && request.query.limit > 0 && request.query.limit <= 20;
+      allow create: if owns(uid) && validLocation(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if owns(uid) && validLocation(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if owns(uid);
+    }
+
+    // Preferencias, salud, documentos de usuario y demás rutas aún no habilitados.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

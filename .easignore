@@ -1,6 +1,7 @@
 # Archive rooted at the repository. Git exclusions remain unchanged.
 .git/
 .cache/
+firebase/
 node_modules/
 .expo/
 dist/

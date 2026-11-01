@@ -1,6 +1,7 @@
 # App-root archive rules. Keep aligned with the repository .easignore.
 .git/
 .cache/
+firebase/
 node_modules/
 .expo/
 dist/

@@ -38,6 +38,7 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "test:saved-locations": "node --test scripts/saved-locations.test.mjs",
     "test:account": "node --test scripts/account.test.mjs",
     "typecheck": "tsc --noEmit",
     "test:locations": "node --test scripts/search-locations.test.mjs",
