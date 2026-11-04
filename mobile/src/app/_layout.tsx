@@ -1,14 +1,18 @@
 ﻿import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { EarthquakeMonitorProvider } from '@/components/earthquake-monitor';
+import { CardPreferencesProvider } from '@/components/card-preferences-context';
 export default function RootLayout() {
   return (
     <EarthquakeMonitorProvider>
+      <CardPreferencesProvider>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerStyle: { backgroundColor: '#F3F7FA' }, headerTintColor: '#142F44' }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="explore" options={{ title: 'Detalle del ejemplo' }} />
         <Stack.Screen name="account" options={{ title: 'Tu cuenta' }} />
+        <Stack.Screen name="card-preferences" options={{ title: 'Preferencias de tarjetas' }} />
+        <Stack.Screen name="card-preferences-demo" options={{ title: 'Pruebas ficticias de preferencias' }} />
         <Stack.Screen name="saved-locations-demo" options={{ title: 'Pruebas ficticias de lugares' }} />
         <Stack.Screen name="wind-demo" options={{ title: 'Pruebas ficticias de viento' }} />
         <Stack.Screen name="earthquake-demo" options={{ title: 'Pruebas ficticias de sismos' }} />
@@ -17,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="visibility-demo" options={{ title: 'Pruebas ficticias de visibilidad' }} />
         <Stack.Screen name="pressure-demo" options={{ title: 'Pruebas ficticias de presión' }} />
       </Stack>
+      </CardPreferencesProvider>
     </EarthquakeMonitorProvider>
   );
 }

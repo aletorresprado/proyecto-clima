@@ -31,7 +31,21 @@ service cloud.firestore {
       allow delete: if owns(uid);
     }
 
-    // Preferencias, salud, documentos de usuario y demás rutas aún no habilitados.
+    function validPreferences(data) {
+      return data.keys().hasAll(['wind', 'uv', 'precipitation', 'visibility', 'pressure', 'updatedAt'])
+        && data.keys().hasOnly(['wind', 'uv', 'precipitation', 'visibility', 'pressure', 'updatedAt'])
+        && data.wind is bool && data.uv is bool && data.precipitation is bool
+        && data.visibility is bool && data.pressure is bool
+        && data.updatedAt is timestamp && data.updatedAt == request.time;
+    }
+
+    match /users/{uid}/preferences/main {
+      allow get, delete: if owns(uid);
+      allow create, update: if owns(uid) && validPreferences(request.resource.data);
+      // Sin listados: el cliente lee únicamente este documento conocido.
+    }
+
+    // Salud, documentos de usuario y demás rutas aún no habilitados.
     match /{document=**} {
       allow read, write: if false;
     }

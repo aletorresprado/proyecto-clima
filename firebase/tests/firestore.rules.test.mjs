@@ -103,12 +103,57 @@ test('requiere lista paginada, sin consultas globales entre usuarios', async () 
   await assertFails(getDocs(query(collectionGroup(database, 'locations'), limit(20))));
 });
 
-test('deniega preferencias, salud, documentos raíz y demás rutas', async () => {
+test('deniega preferencias alternativas, salud, documentos raíz y demás rutas', async () => {
   const database = db('usuario-a');
-  for (const route of ['users/usuario-a', 'users/usuario-a/preferences/main', 'users/usuario-a/symptoms/ficticio', 'public/ficticio']) {
+  for (const route of ['users/usuario-a', 'users/usuario-a/preferences/other', 'users/usuario-a/symptoms/ficticio', 'public/ficticio']) {
     const target = doc(database, route);
     await assertFails(getDoc(target));
     await assertFails(setDoc(target, { ficticio: true }));
     await assertFails(deleteDoc(target));
   }
+});
+
+const preferences = () => ({ wind: true, uv: true, precipitation: true, visibility: true, pressure: true, updatedAt: serverTimestamp() });
+const preferencesRef = (database, uid) => doc(database, `users/${uid}/preferences/main`);
+
+test('preferencias: propietario lee documento ausente, crea, actualiza y elimina', async () => {
+  const database = db('usuario-a'); const target = preferencesRef(database, 'usuario-a');
+  assert.equal((await assertSucceeds(getDoc(target))).exists(), false);
+  await assertSucceeds(setDoc(target, preferences()));
+  await assertSucceeds(updateDoc(target, { wind: false, updatedAt: serverTimestamp() }));
+  assert.equal((await assertSucceeds(getDoc(target))).data().wind, false);
+  await assertSucceeds(setDoc(target, { wind: false, uv: false, precipitation: false, visibility: false, pressure: false, updatedAt: serverTimestamp() }));
+  await assertSucceeds(deleteDoc(target));
+});
+
+test('preferencias: aislamiento A/B y bloqueo anónimo incluso con documento existente', async () => {
+  for (const owner of ['usuario-a', 'usuario-b']) {
+    await assertSucceeds(setDoc(preferencesRef(db(owner), owner), preferences()));
+    for (const actor of [owner === 'usuario-a' ? 'usuario-b' : 'usuario-a', null]) {
+      const target = preferencesRef(db(actor), owner);
+      await assertFails(getDoc(target));
+      await assertFails(setDoc(target, preferences()));
+      await assertFails(updateDoc(target, { wind: false, updatedAt: serverTimestamp() }));
+      await assertFails(deleteDoc(target));
+      await assertFails(setDoc(doc(db(actor), `users/${owner}/preferences/other`), preferences()));
+    }
+  }
+});
+
+test('preferencias: contrato estricto, fecha del servidor y listas bloqueadas', async () => {
+  const database = db('usuario-a'); const target = preferencesRef(database, 'usuario-a');
+  for (const field of Object.keys(preferences())) {
+    const missing = preferences(); delete missing[field];
+    await assertFails(setDoc(target, missing));
+  }
+  for (const field of ['wind', 'uv', 'precipitation', 'visibility', 'pressure']) {
+    for (const value of [null, 0, 'true', [], {}]) await assertFails(setDoc(target, { ...preferences(), [field]: value }));
+  }
+  await assertFails(setDoc(target, { ...preferences(), symptoms: 'ficticio' }));
+  await assertFails(setDoc(target, { ...preferences(), updatedAt: Timestamp.fromMillis(1000) }));
+  await assertSucceeds(setDoc(target, preferences()));
+  await assertFails(updateDoc(target, { wind: false, updatedAt: Timestamp.fromMillis(1000) }));
+  await assertFails(updateDoc(target, { uv: 'false', updatedAt: serverTimestamp() }));
+  await assertFails(getDocs(query(collection(database, 'users/usuario-a/preferences'), limit(1))));
+  await assertFails(getDocs(query(collectionGroup(database, 'preferences'), limit(20))));
 });

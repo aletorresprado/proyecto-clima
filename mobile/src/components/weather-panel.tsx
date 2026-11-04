@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { fetchCurrentWeather, isWeatherFresh, isForecastFresh, type CurrentWeather, type WeatherLocation } from '@/providers/current-weather';
+import { useCardPreferences } from '@/components/card-preferences-context';
 import { WindNoticeCard } from '@/components/wind-notice-card';
 import { UvNoticeCard } from '@/components/uv-notice-card';
 import { PrecipitationNoticeCard } from '@/components/precipitation-notice-card';
@@ -8,6 +9,8 @@ import { VisibilityNoticeCard } from '@/components/visibility-notice-card';
 import { PressureTrendCard } from '@/components/pressure-trend-card';
 
 export function WeatherPanel({ location }: { location: WeatherLocation }) {
+  const cardState = useCardPreferences();
+  const cards = cardState.preferences;
   const [weather, setWeather] = useState<CurrentWeather>();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -52,11 +55,14 @@ export function WeatherPanel({ location }: { location: WeatherLocation }) {
         <View style={styles.card}><Text style={styles.caption}>Presión reducida al nivel del mar</Text><Text style={styles.value}>{value(weather.seaLevelPressureHpa, 'hPa')}</Text></View>
       </>}
       {weather && <Text style={styles.caption}>Hora de los datos: {formatTime(weather.validAt, weather.timezone)}{'\n'}Consultado: {formatTime(weather.fetchedAt, weather.timezone)}{'\n'}Zona horaria: {weather.timezone}{'\n'}La hora de los datos no indica cuándo se ejecutó el modelo.</Text>}
-      {weather && <WindNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.hourly }} />}
-      {weather && <UvNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.uvHourly }} />}
-      {weather && <PrecipitationNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.precipitationHourly }} />}
-      {weather && <VisibilityNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.visibilityHourly }} />}
-      {weather && <PressureTrendCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.hourly }} />}
+      {weather && cardState.status === 'error' && <Text accessibilityLiveRegion="polite" style={styles.body}>{cardState.message}</Text>}
+      {weather && cardState.status === 'loading' && <Text style={styles.caption}>Cargando preferencias. Por ahora mostramos todas las tarjetas.</Text>}
+      {weather && !Object.values(cards).some(Boolean) && <Text style={styles.body}>Ocultaste las tarjetas opcionales desde tus preferencias. Esto no significa ausencia de riesgo.</Text>}
+      {weather && cards.wind && <WindNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.hourly }} />}
+      {weather && cards.uv && <UvNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.uvHourly }} />}
+      {weather && cards.precipitation && <PrecipitationNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.precipitationHourly }} />}
+      {weather && cards.visibility && <VisibilityNoticeCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.visibilityHourly }} />}
+      {weather && cards.pressure && <PressureTrendCard now={now} timezone={weather.timezone} input={{ locationId: `${location.latitude}:${location.longitude}`, locationLabel: location.label, fetchedAt: weather.fetchedAt, hours: weather.hourly }} />}
       {weather && <View style={styles.panel}>
         <Text accessibilityRole="header" style={styles.title}>Próximas 24 horas</Text>
         <Text style={styles.caption}>Pronóstico horario de modelos para {location.label}. Horas locales de {weather.timezone}; no son observaciones ni alertas.</Text>

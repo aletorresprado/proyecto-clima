@@ -1,8 +1,9 @@
 # Preparación local de Firestore
 
-Estado al 2026-11-01: reglas compiladas y nueve grupos de pruebas correctos en el
-emulador oficial. No se creó Firestore en nube ni se desplegaron reglas. La app
-todavía no lee ni escribe lugares guardados.
+Estado al 2026-11-04: doce grupos de pruebas correctos en el emulador oficial.
+Lugares guardados ya validados en nube por el usuario (Standard/Spark, São Paulo).
+Reglas de preferencias publicadas según confirmación del usuario; cliente real habilitado
+y validado en Android: guardar, recuperar, separar cuentas, restablecer y reintentar.
 
 ## Herramientas y ejecución local
 
@@ -50,15 +51,14 @@ sin correo ni coordenadas en la ruta. El guardado será una acción explícita.
 
 No admitir campos adicionales. Listas paginadas de hasta 20 documentos; eso limita
 el tamaño de cada consulta, no el total guardado ni el consumo de la cuenta.
-Preferencias quedan para otro incremento. No persistir GPS automáticamente, tokens,
+No persistir GPS automáticamente, tokens,
 perfil Google, salud ni pronósticos en estos documentos.
 
 ## Cobertura probada en el emulador
 
 Se usó proyecto local `demo-proyecto-clima`, usuarios ficticios A y B y contexto
-sin sesión. Emulador cloud-firestore-emulator-v1.22.0; nueve grupos pasaron y el
-emulador se apagó automáticamente. El ajuste del entorno se verificó con otra
-ejecución completa, también correcta.
+sin sesión. Emulador cloud-firestore-emulator-v1.22.0; doce grupos pasaron y el
+emulador se apagó automáticamente.
 
 1. A puede crear, leer, listar, editar y borrar sus lugares válidos.
 2. A no puede obtener, listar, crear, editar ni borrar lugares de B.
@@ -66,13 +66,24 @@ ejecución completa, también correcta.
 4. Rechazar campos extra o faltantes, tipos erróneos, coordenadas fuera de rango,
    nombre vacío/largo, fechas de cliente y cambios de fecha de creación.
 5. Admitir extremos geográficos y cero; probar timestamps del servidor al crear y editar.
-6. Rechazar listas sin límite o mayores que 20 y accesos a todas las demás rutas.
+6. Rechazar listas sin límite o mayores que 20 y accesos a rutas no habilitadas.
+7. Preferencias: CRUD propio, aislamiento A/B y anónimo, contrato y timestamps,
+   ausencia de documento, todas las opciones desactivadas y rechazo de listados.
 
 Las pruebas del validador TypeScript no comprueban autorización ni sintaxis de reglas.
-La aplicación todavía no importa el validador ni usa Firestore. Antes de conectar
-nube falta preparar integración y UI, limpiar estado/suscripciones al cambiar
-de cuenta, y autorizar creación de base/región/despliegue con las mismas reglas.
-La validación del emulador no demuestra que haya reglas desplegadas en producción.
+El cliente de lugares ya usa Firestore Lite. Preferencias ya cuenta con UI, limpieza de estado al cambiar cuenta y publicación autorizada
+confirmada por el usuario.
+La validación del emulador no demuestra que esas reglas nuevas estén en producción.
+
+## Contrato de preferencias preparado
+
+Documento único `users/{uid}/preferences/main`: `wind`, `uv`, `precipitation`,
+`visibility`, `pressure` booleanos y `updatedAt` del servidor, sin campos extra.
+Solo el propietario puede obtener, crear, reemplazar, actualizar o eliminar.
+Listados y otros IDs denegados. Sin documento se muestran todas las tarjetas.
+Restablecer se implementará guardando las cinco opciones en true. No hay cola
+offline ni listeners Firestore. `EXPO_PUBLIC_CARD_PREFERENCES_ENABLED` debe
+permanecer apagado hasta publicación autorizada y preparación de la interfaz.
 
 Referencias oficiales:
 - https://firebase.google.com/docs/firestore/security/rules-fields
