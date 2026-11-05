@@ -1,5 +1,4 @@
 import { isRunningInExpoGo } from 'expo';
-import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import type { WeatherLocation } from '@/providers/current-weather';
@@ -36,6 +35,5 @@ export function SavedLocationsCard(props: Props) {
       : account === undefined || !store ? <Text>Comprobando tus lugares…</Text>
         : <SavedLocationsPanel uid={account?.uid ?? null} store={store} selected={props.selected}
           onSelect={(place) => { if (account) props.onSelect(place, account.uid); }} />)}
-    {__DEV__ && <Link href="/saved-locations-demo" style={{ color: '#126271', fontWeight: '700', paddingVertical: 12 }}>Probar lugares guardados con datos ficticios →</Link>}
   </View>;
 }

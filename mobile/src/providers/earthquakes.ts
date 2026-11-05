@@ -1,5 +1,5 @@
 export type Epicenter = { latitude: number; longitude: number };
-export type Earthquake = { id: string; place: string; time: number; magnitude: number | null; depthKm: number | null; distanceKm: number };
+export type Earthquake = { id: string; place: string; time: number; magnitude: number | null; depthKm: number | null; distanceKm: number; epicenter?: Epicenter };
 export const EARTHQUAKE_WINDOW_MS = 24 * 3600000;
 const record = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -25,7 +25,7 @@ export function parseEarthquakes(payload: unknown, center: Epicenter, now: numbe
     const distance = distanceKm(center, { latitude: c[1], longitude: c[0] });
     if (distance > 6371 * Math.PI / 180 * 1.8 + 0.1) continue;
     ids.add(feature.id);
-    events.push({ id: feature.id, time: p.time, place: typeof p.place === 'string' && p.place.trim() ? p.place : 'Lugar no informado', magnitude: finite(p.mag) ? p.mag : null, depthKm: finite(c[2]) ? c[2] : null, distanceKm: distance });
+    events.push({ id: feature.id, time: p.time, place: typeof p.place === 'string' && p.place.trim() ? p.place : 'Lugar no informado', magnitude: finite(p.mag) ? p.mag : null, depthKm: finite(c[2]) ? c[2] : null, distanceKm: distance, epicenter: { latitude: c[1], longitude: c[0] } });
   }
   // No presentar una respuesta truncada como catálogo completo.
   if (payload.features.length >= 1000) throw new Error('Hay demasiados eventos para esta consulta. Información incompleta.');

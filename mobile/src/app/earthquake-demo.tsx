@@ -1,11 +1,13 @@
+import { EarthquakeEventCard } from '@/components/earthquake-event-card';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { readEarthquakeIds, writeEarthquakeIds } from '@/providers/earthquake-history';
-import { unseenEarthquakes, type Earthquake } from '@/providers/earthquakes';
+import { distanceKm, unseenEarthquakes, type Earthquake } from '@/providers/earthquakes';
 
 // Clave exclusiva de pruebas: nunca lee ni modifica el historial real.
 const KEY = 'clima:earthquakes:demo-seen:v1';
+const DEMO_CENTER = { latitude: -26.83, longitude: -65.22 };
 export default function EarthquakeDemoScreen() {
   const seen = useRef(new Set<string>());
   const lock = useRef(false);
@@ -24,10 +26,11 @@ export default function EarthquakeDemoScreen() {
     }).catch(() => { if (mounted.current) setError('No pudimos leer el historial ficticio. Volvé a abrir esta pantalla.'); });
     return () => { mounted.current = false; };
   }, []);
-  async function receive(id: string) {
+  async function receive(id: string, magnitude?: number | null) {
     if (!ready || lock.current) return;
     lock.current = true; setBusy(true); setError('');
-    const sample: Earthquake = { id, place: 'Epicentro ficticio de prueba', time: Date.now() - 60000, magnitude: id.endsWith('a') ? 3.2 : 4.1, depthKm: 10, distanceKm: 75 };
+    const epicenter = { latitude: id.endsWith('a') ? -27.4 : -26.2, longitude: -65.7 };
+    const sample: Earthquake = { id, place: 'Epicentro ficticio de prueba', time: Date.now() - 60000, magnitude: magnitude === undefined ? (id.endsWith('a') ? 3.2 : 4.1) : magnitude, depthKm: 10, distanceKm: distanceKm(DEMO_CENTER, epicenter), epicenter };
     const fresh = unseenEarthquakes([sample], seen.current);
     const next = new Set([...seen.current, id]);
     try {
@@ -56,12 +59,13 @@ export default function EarthquakeDemoScreen() {
     <Text style={styles.text}>IDs ficticios guardados: {count}{!ready && !error ? ' · cargando…' : ''}</Text>
     {button('Recibir evento A / repetir A', () => { void receive('demo-a'); })}
     {button('Recibir evento B / repetir B', () => { void receive('demo-b'); })}
+    <Text style={styles.text}>Probar colores de magnitud (escala visual propia):</Text>
+    {button('Magnitud 2,5 · azul', () => { void receive('demo-m25', 2.5); })}
+    {button('Magnitud 6,0 · naranja', () => { void receive('demo-m60', 6); })}
+    {button('Magnitud 6,5 · rojo', () => { void receive('demo-m65', 6.5); })}
+    {button('Magnitud no informada · gris', () => { void receive('demo-missing', null); })}
     {!!notice && <View style={styles.notice}><Text accessibilityLiveRegion="polite" style={styles.text}>{notice}</Text></View>}
-    {event && <View style={styles.card}>
-      <Text style={styles.text}>{event.place}</Text>
-      <Text style={styles.text}>Magnitud ficticia {event.magnitude} · distancia ficticia {event.distanceKm} km · profundidad ficticia {event.depthKm} km</Text>
-      <Text style={styles.text}>ID: {event.id}</Text>
-    </View>}
+    {event && <EarthquakeEventCard event={event} center={DEMO_CENTER} example />}
     {!!error && <Text accessibilityLiveRegion="polite" style={styles.text}>{error}</Text>}
     <Text style={styles.text}>Para comprobar persistencia: recibí A, volvé con Atrás, entrá otra vez y repetí A. Debe decir «Evento ya visto». Repetí después de recargar la app. B debe generar un aviso nuevo la primera vez.</Text>
     {button('Reiniciar solo la prueba ficticia', () => { void reset(); })}

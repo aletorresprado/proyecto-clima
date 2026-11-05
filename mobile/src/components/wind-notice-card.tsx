@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { CompactEvaluation } from '@/components/compact-evaluation';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 import { evaluateWind, WIND_THRESHOLD_KMH, type WindInput } from '@/rules/wind';
@@ -10,6 +10,7 @@ export function WindNoticeCard({ input, now, timezone, example = false }: { inpu
     timeZone: timezone, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'shortOffset',
   }).format(timestamp);
   return (
+    <CompactEvaluation title="Viento" icon="🌬️" summary={result.state === 'notice' ? 'Aviso experimental · hasta ' + result.notice.maxWindKmh.toFixed(1) + ' km/h previstos.' : result.state === 'below' ? 'Criterio no alcanzado. No significa ausencia de riesgo.' : result.reason === 'expired' ? 'Consulta vencida. Actualizá el clima.' : 'Información insuficiente para evaluar viento.'} action={result.state === 'notice' ? 'Considerá asegurar objetos sueltos del exterior.' : undefined} tone={result.state === 'notice' ? 'notice' : result.state === 'insufficient' ? 'insufficient' : 'information'} place={input.locationLabel} example={example} context={((result.state === 'notice' && result.notice.coverage === 'partial') ? 'Cobertura incompleta · ' : '') + (example ? 'Escenario ficticio' : 'Open-Meteo · modelo, no alerta oficial') + ' · Consulta: ' + time(input.fetchedAt)}>
     <View style={[styles.card, result.state === 'notice' && styles.notice]}>
       {example && <Text style={styles.label}>DATOS FICTICIOS · PRUEBA</Text>}
       <Text accessibilityRole="header" style={styles.title}>{result.state === 'notice' ? 'Aviso experimental de viento' : 'Evaluación experimental de viento'}</Text>
@@ -29,8 +30,7 @@ export function WindNoticeCard({ input, now, timezone, example = false }: { inpu
         <Text style={styles.linkText}>Referencia descriptiva: Beaufort · NWS</Text>
       </Pressable>
       {linkError && <Text style={styles.meta}>No pudimos abrir el enlace de referencia.</Text>}
-      {!example && __DEV__ && <Link href="/wind-demo" style={styles.linkText}>Probar con datos ficticios</Link>}
-    </View>
+    </View></CompactEvaluation>
   );
 }
 const styles = StyleSheet.create({

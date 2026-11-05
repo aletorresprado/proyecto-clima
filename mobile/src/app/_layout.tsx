@@ -12,6 +12,7 @@ export default function RootLayout() {
         <Stack.Screen name="explore" options={{ title: 'Detalle del ejemplo' }} />
         <Stack.Screen name="account" options={{ title: 'Tu cuenta' }} />
         <Stack.Screen name="card-preferences" options={{ title: 'Preferencias de tarjetas' }} />
+        <Stack.Screen name="development-tests" options={{ title: 'Pruebas de desarrollo' }} />
         <Stack.Screen name="card-preferences-demo" options={{ title: 'Pruebas ficticias de preferencias' }} />
         <Stack.Screen name="saved-locations-demo" options={{ title: 'Pruebas ficticias de lugares' }} />
         <Stack.Screen name="wind-demo" options={{ title: 'Pruebas ficticias de viento' }} />

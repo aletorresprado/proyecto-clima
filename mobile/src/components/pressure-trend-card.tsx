@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { CompactEvaluation } from '@/components/compact-evaluation';
 import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { evaluatePressure, type PressureInput } from '@/rules/pressure';
@@ -7,7 +7,7 @@ export function PressureTrendCard({ input, now, timezone, example = false }: { i
   const [linkError, setLinkError] = useState(false);
   const time = (t: number) => new Intl.DateTimeFormat('es-AR', { timeZone: timezone, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'shortOffset' }).format(t);
   const number = (value: number) => value.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  return <View style={styles.card}>
+  return <CompactEvaluation title="Presión · variación en 3 h" icon="◴" summary={result.state === 'ready' ? 'Diferencia prevista: ' + (result.deltaHpa > 0 ? '+' : '') + result.deltaHpa.toFixed(1) + ' hPa. Información de contexto.' : result.reason === 'expired' ? 'Consulta vencida. Actualizá el clima.' : 'Información insuficiente para comparar presión.'} action={undefined} tone={result.state === 'insufficient' ? 'insufficient' : 'information'} place={input.locationLabel} example={example} context={((false) ? 'Cobertura incompleta · ' : '') + (example ? 'Escenario ficticio' : 'Open-Meteo · modelo, no alerta oficial') + ' · Consulta: ' + time(input.fetchedAt)}><View style={styles.card}>
     {example && <Text style={styles.label}>DATOS FICTICIOS · PRUEBA</Text>}
     <Text accessibilityRole="header" style={styles.title}>Variación prevista de presión en 3 horas</Text>
     <Text style={styles.text}>Lugar: {input.locationLabel}</Text>
@@ -25,7 +25,6 @@ export function PressureTrendCard({ input, now, timezone, example = false }: { i
     <Text style={styles.meta}>{example ? 'Fuente: escenario ficticio local.' : 'Fuente: Open-Meteo · CC BY 4.0 · estimaciones de modelos.'} Consulta: {time(input.fetchedAt)}. Zona: {timezone}.</Text>
     <Pressable accessibilityRole="link" onPress={() => { void Linking.openURL('https://open-meteo.com/en/docs').catch(() => setLinkError(true)); }}><Text style={styles.link}>Fuente de presión · Open-Meteo</Text></Pressable>
     {linkError && <Text style={styles.meta}>No pudimos abrir la fuente.</Text>}
-    {!example && __DEV__ && <Link href="./pressure-demo" style={styles.link}>Probar presión con datos ficticios</Link>}
-  </View>;
+  </View></CompactEvaluation>;
 }
 const styles = StyleSheet.create({ card: { backgroundColor: '#FFFFFF', padding: 20, borderRadius: 20, borderWidth: 1, borderColor: '#B4C9D1', gap: 12 }, title: { color: '#142F44', fontSize: 22, fontWeight: '700' }, text: { color: '#334B5D', fontSize: 16, lineHeight: 24 }, meta: { color: '#52697A', fontSize: 14, lineHeight: 21 }, value: { color: '#142F44', fontSize: 24, fontWeight: '700' }, label: { color: '#725000', fontWeight: '800' }, link: { color: '#126271', fontWeight: '700', fontSize: 15, paddingVertical: 8 } });

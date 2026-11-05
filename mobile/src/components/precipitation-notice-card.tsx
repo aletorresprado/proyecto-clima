@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { CompactEvaluation } from '@/components/compact-evaluation';
 import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { evaluatePrecipitation, type PrecipitationInput } from '@/rules/precipitation';
@@ -6,7 +6,7 @@ export function PrecipitationNoticeCard({ input, now, timezone, example = false 
   const result = evaluatePrecipitation(input, now);
   const [linkError, setLinkError] = useState(false);
   const time = (t: number) => new Intl.DateTimeFormat('es-AR', { timeZone: timezone, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'shortOffset' }).format(t);
-  return <View style={styles.card}>
+  return <CompactEvaluation title="Precipitación" icon="🌧️" summary={result.state === 'notice' ? 'Criterio alcanzado · probabilidad prevista de al menos 50 % en intervalos completos futuros.' : result.state === 'below' ? 'Criterio del 50 % no alcanzado. No descarta precipitación o riesgo.' : result.reason === 'expired' ? 'Consulta vencida. Actualizá el clima.' : 'Información insuficiente para evaluar precipitación.'} action={result.state === 'notice' ? 'Considerá llevar protección para la lluvia y revisar actividades al aire libre.' : undefined} tone={result.state === 'notice' ? 'notice' : result.state === 'insufficient' ? 'insufficient' : 'information'} place={input.locationLabel} example={example} context={((result.state === 'notice' && result.partial) ? 'Cobertura incompleta · ' : '') + (example ? 'Escenario ficticio' : 'Open-Meteo · modelo, no alerta oficial') + ' · Consulta: ' + time(input.fetchedAt)}><View style={styles.card}>
     {example && <Text style={styles.label}>DATOS FICTICIOS · PRUEBA</Text>}
     <Text accessibilityRole="header" style={styles.title}>{result.state === 'notice' ? 'Posibilidad de precipitación' : 'Evaluación de precipitación'}</Text>
     <Text style={styles.text}>Lugar: {input.locationLabel}</Text>
@@ -27,7 +27,6 @@ export function PrecipitationNoticeCard({ input, now, timezone, example = false 
     <Text style={styles.meta}>{example ? 'Fuente: escenario ficticio local.' : 'Fuente: Open-Meteo · CC BY 4.0 · estimaciones de modelos.'} Consulta: {time(input.fetchedAt)}. Zona: {timezone}.</Text>
     <Pressable accessibilityRole="link" onPress={() => { void Linking.openURL('https://open-meteo.com/en/docs').catch(() => setLinkError(true)); }}><Text style={styles.link}>Fuente y definición de precipitación · Open-Meteo</Text></Pressable>
     {linkError && <Text style={styles.meta}>No pudimos abrir la fuente.</Text>}
-    {!example && __DEV__ && <Link href="./precipitation-demo" style={styles.link}>Probar precipitación con datos ficticios</Link>}
-  </View>;
+  </View></CompactEvaluation>;
 }
 const styles = StyleSheet.create({ card: { padding: 20, borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#B4C9D1', gap: 12 }, title: { fontSize: 22, fontWeight: '700', color: '#142F44' }, text: { fontSize: 16, lineHeight: 24, color: '#334B5D' }, action: { fontSize: 17, lineHeight: 25, fontWeight: '700', color: '#142F44' }, meta: { fontSize: 14, lineHeight: 21, color: '#52697A' }, label: { fontWeight: '800', color: '#725000' }, link: { fontSize: 15, fontWeight: '700', color: '#126271', paddingVertical: 8 }, interval: { paddingVertical: 8, gap: 4 } });

@@ -1,9 +1,12 @@
+import { weatherCode, daylight } from './weather-condition.ts';
 export type WeatherLocation = { label: string; latitude: number; longitude: number; timezone?: string | null };
-export type ForecastHour = { time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
+export type ForecastHour = { weatherCode?: number | null; isDay?: boolean | null; time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
 export type UvHour = { time: number; uvIndex: number | null };
 export type VisibilityHour = { time: number; visibilityM: number | null };
 export type PrecipitationHour = { time: number; probability: number | null; amountMm: number | null };
 export type CurrentWeather = {
+  weatherCode?: number | null;
+  isDay?: boolean | null;
   temperatureC: number | null;
   windKmh: number | null;
   seaLevelPressureHpa: number | null;
@@ -92,7 +95,9 @@ export function parseHourlyForecast(payload: unknown, now: number): ForecastHour
     if (timestamp <= now || timestamp > now + 24 * 3600000) continue;
     const wind = numeric(winds[index]);
     const pressure = numeric(pressures[index]);
-    hours.push({ time: timestamp, temperatureC: numeric(temperatures[index]),
+    hours.push({ weatherCode: units.weather_code === 'wmo code' && Array.isArray(payload.hourly.weather_code) && payload.hourly.weather_code.length === time.length ? weatherCode(payload.hourly.weather_code[index]) : null,
+      isDay: units.is_day === '' && Array.isArray(payload.hourly.is_day) && payload.hourly.is_day.length === time.length ? daylight(payload.hourly.is_day[index]) : null,
+      time: timestamp, temperatureC: numeric(temperatures[index]),
       windKmh: wind !== null && wind >= 0 ? wind : null,
       seaLevelPressureHpa: pressure !== null && pressure > 0 ? pressure : null });
   }
@@ -113,6 +118,8 @@ export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): C
   const wind = numeric(payload.current.wind_speed_10m);
   const pressure = numeric(payload.current.pressure_msl);
   return {
+    weatherCode: units.weather_code === 'wmo code' ? weatherCode(payload.current.weather_code) : null,
+    isDay: units.is_day === '' ? daylight(payload.current.is_day) : null,
     temperatureC: numeric(payload.current.temperature_2m),
     windKmh: wind !== null && wind >= 0 ? wind : null,
     seaLevelPressureHpa: pressure !== null && pressure > 0 ? pressure : null,
@@ -132,7 +139,7 @@ export async function fetchCurrentWeather(location: WeatherLocation, signal: Abo
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl&hourly=temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation,visibility&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl,weather_code,is_day&hourly=weather_code,is_day,temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation,visibility&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25`;
     let response: Response;
     try { response = await fetch(url, { signal: controller.signal }); }
     catch (error) {

@@ -1,5 +1,5 @@
+import { CompactEvaluation } from '@/components/compact-evaluation';
 import { useState } from 'react';
-import { Link } from 'expo-router';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { evaluateUv, type UvInput } from '@/rules/uv';
 
@@ -7,7 +7,7 @@ export function UvNoticeCard({ input, now, timezone, example = false }: { input:
   const result = evaluateUv(input, now);
   const [linkError, setLinkError] = useState(false);
   const time = (value: number) => new Intl.DateTimeFormat('es-AR', { timeZone: timezone, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'shortOffset' }).format(value);
-  return <View style={styles.card}>
+  return <CompactEvaluation title="Índice UV" icon="☀️" summary={result.state === 'notice' ? 'Protección recomendada · UV máximo previsto ' + result.maxUv + '.' : result.state === 'below' ? 'No se prevé UV ≥3 en las horas evaluadas. No significa ausencia general de riesgo.' : result.reason === 'expired' ? 'Consulta vencida. Actualizá el clima.' : 'Información insuficiente para evaluar UV.'} action={result.state === 'notice' ? (result.reinforcedHours.length ? 'Se prevé UV ≥8: evitá la exposición alrededor del mediodía y reforzá la protección.' : 'Buscá sombra y usá ropa protectora, sombrero, anteojos y protector solar.') : undefined} tone={result.state === 'notice' ? 'notice' : result.state === 'insufficient' ? 'insufficient' : 'information'} place={input.locationLabel} example={example} context={((result.state === 'notice' && result.partial) ? 'Cobertura incompleta · ' : '') + (example ? 'Escenario ficticio' : 'Open-Meteo · modelo, no alerta oficial') + ' · Consulta: ' + time(input.fetchedAt)}><View style={styles.card}>
     {example && <Text style={styles.label}>DATOS FICTICIOS · PRUEBA</Text>}
     <Text accessibilityRole="header" style={styles.title}>{result.state === 'notice' ? 'Protección solar recomendada' : 'Evaluación de índice UV'}</Text>
     <Text style={styles.text}>Lugar: {input.locationLabel}</Text>
@@ -28,8 +28,7 @@ export function UvNoticeCard({ input, now, timezone, example = false }: { input:
     <Text style={styles.meta}>Criterios de protección desde UV 3 y refuerzo desde UV 8 basados en la OMS. Recomendación general; no es una alerta oficial ni calcula tiempos personales seguros de exposición.</Text>
     <Pressable accessibilityRole="link" onPress={() => { void Linking.openURL('https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index').catch(() => setLinkError(true)); }}><Text style={styles.link}>Referencia: índice UV · OMS</Text></Pressable>
     {linkError && <Text style={styles.meta}>No pudimos abrir la referencia.</Text>}
-    {!example && __DEV__ && <Link href="/uv-demo" style={styles.link}>Probar UV con datos ficticios</Link>}
-  </View>;
+  </View></CompactEvaluation>;
 }
 const styles = StyleSheet.create({
   card: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, gap: 12, borderWidth: 1, borderColor: '#B4C9D1' },

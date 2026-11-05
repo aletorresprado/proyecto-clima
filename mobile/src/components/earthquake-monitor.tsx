@@ -1,14 +1,15 @@
+import { EarthquakeEventCard } from '@/components/earthquake-event-card';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Link } from 'expo-router';
 import * as Location from 'expo-location';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { AppState, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import { fetchEarthquakes, unseenEarthquakes, type Earthquake, type Epicenter } from '@/providers/earthquakes';
 import { readEarthquakeIds, writeEarthquakeIds } from '@/providers/earthquake-history';
+import { resolvePlaceName } from '@/providers/device-location';
 
 const STORAGE_KEY = 'clima:earthquakes:seen:v1';
 const INTERVAL = 120000;
-type Snapshot = { events: Earthquake[]; center: Epicenter; checkedAt: number };
+type Snapshot = { events: Earthquake[]; center: Epicenter; checkedAt: number; placeName?: string | null };
 type Monitor = { enabled: boolean; busy: boolean; error: string; storageError: string; snapshot?: Snapshot; newCount: number; start: () => Promise<void>; stop: () => void; dismiss: () => void };
 const Context = createContext<Monitor | null>(null);
 
@@ -66,6 +67,11 @@ export function EarthquakeMonitorProvider({ children }: { children: ReactNode })
         const fresh = unseenEarthquakes(events, seen.current);
         events.forEach((event) => seen.current.add(event.id));
         setSnapshot({ center, events, checkedAt: Date.now() });
+        // Resolver el nombre no bloquea USGS ni reutiliza la localidad meteorológica.
+        void resolvePlaceName(center.latitude, center.longitude).then((placeName) => {
+          if (disposed || controller.signal.aborted || AppState.currentState !== 'active') return;
+          setSnapshot((current) => current?.center === center ? { ...current, placeName } : current);
+        });
         setNewCount((count) => count + fresh.length);
         try { await writeEarthquakeIds(AsyncStorage, STORAGE_KEY, seen.current); setStorageError(''); }
         catch { setStorageError('No pudimos guardar los IDs. Evitamos repeticiones en esta sesión, pero podrían repetirse al reiniciar.'); }
@@ -101,7 +107,7 @@ export function EarthquakeCard() {
     <Text style={styles.text}>USGS · últimas 24 horas · radio aproximado de 200 km (1,8°).</Text>
     <Text style={styles.meta}>Consulta cada 2 minutos mientras la app está activa. Son eventos ya publicados, con posibles demoras y revisiones; no es alerta temprana ni predicción. La cobertura puede ser incompleta.</Text>
     <Text style={styles.meta}>Al iniciar enviamos tu ubicación puntual a USGS en cada ciclo. Solo guardamos IDs de eventos en este dispositivo para evitar repeticiones; no guardamos coordenadas. La búsqueda de clima es independiente.</Text>
-    {__DEV__ && <Link href="/earthquake-demo" style={styles.link}>Probar eventos ficticios</Link>}
+    <Text style={styles.meta}>Para mostrar el nombre de la zona usamos la geocodificación del sistema, que puede necesitar conexión. No consultamos tu dirección completa.</Text>
     <Pressable accessibilityRole="button" disabled={busy && !enabled} style={styles.button} onPress={() => { if (enabled) monitor.stop(); else void monitor.start(); }}><Text style={styles.buttonText}>{enabled ? 'Detener monitoreo sísmico' : busy ? 'Iniciando…' : 'Iniciar con mi ubicación'}</Text></Pressable>
     <Text style={styles.meta}>{enabled ? busy ? 'Consultando…' : 'Monitoreo activo solo en primer plano.' : 'Monitoreo detenido.'}</Text>
     {!!error && <Text accessibilityLiveRegion="polite" style={styles.text}>{error} La información no está actualizada.</Text>}
@@ -111,20 +117,22 @@ export function EarthquakeCard() {
       <Pressable accessibilityRole="button" onPress={monitor.dismiss}><Text style={styles.link}>Entendido</Text></Pressable>
     </View>}
     {snapshot && <>
+      <View style={styles.center}>
+        <Text style={styles.centerLabel}>ZONA CONSULTADA · UBICACIÓN DEL TELÉFONO</Text>
+        <Text style={styles.centerName} accessibilityLiveRegion="polite">{snapshot.placeName === undefined ? 'Buscando nombre de la zona…' : snapshot.placeName ?? 'Nombre de zona no disponible'}</Text>
+        <Text style={styles.meta}>Radio aproximado de 200 km alrededor de este punto. Independiente de la localidad del clima.</Text>
+      </View>
       <Text style={styles.meta}>Centro consultado: {snapshot.center.latitude.toFixed(3)}, {snapshot.center.longitude.toFixed(3)}. Última consulta exitosa: {date(snapshot.checkedAt)}. Horarios del teléfono.</Text>
       {snapshot.events.length === 0 ? <Text style={styles.text}>USGS no devolvió eventos para este radio y periodo. No significa ausencia de actividad o riesgo.</Text> : <>
         <Text style={styles.meta}>{snapshot.events.length} evento(s) devuelto(s). Se muestran los 5 más recientes.</Text>
-        {snapshot.events.slice(0, 5).map((event) => <View key={event.id} style={styles.event}>
-          <Text style={styles.text}>Magnitud {event.magnitude === null ? 'no informada' : event.magnitude.toFixed(1)} · {event.distanceKm.toFixed(0)} km del centro consultado</Text>
-          <Text style={styles.text}>{event.place}</Text>
-          <Text style={styles.meta}>{date(event.time)} · profundidad: {event.depthKm === null ? 'no informada' : `${event.depthKm.toFixed(1)} km`}</Text>
-          <Pressable accessibilityRole="link" onPress={() => { void Linking.openURL(`https://earthquake.usgs.gov/earthquakes/eventpage/${encodeURIComponent(event.id)}`).catch(() => {}); }}><Text style={styles.link}>Ver evento en USGS</Text></Pressable>
-        </View>)}
-      </>}
+        {snapshot.events.slice(0, 5).map((event) => <EarthquakeEventCard key={event.id} event={event} center={snapshot.center} />)}      </>}
     </>}
   </View>;
 }
 const styles = StyleSheet.create({
+  center: { backgroundColor: '#E4F2F3', borderRadius: 16, padding: 16, gap: 8 },
+  centerLabel: { color: '#126271', fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
+  centerName: { color: '#142F44', fontSize: 18, fontWeight: '700', lineHeight: 25 },
   card: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, gap: 12, borderColor: '#B4C9D1', borderWidth: 1 },
   title: { color: '#142F44', fontSize: 22, fontWeight: '700' }, text: { color: '#334B5D', fontSize: 16, lineHeight: 24 },
   meta: { color: '#52697A', fontSize: 14, lineHeight: 21 }, button: { backgroundColor: '#126271', padding: 16, borderRadius: 12 },

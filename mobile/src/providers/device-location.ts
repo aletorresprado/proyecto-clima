@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { formatGeocodedPlace } from './format-geocoded-place';
 
-async function resolvePlaceName(latitude: number, longitude: number): Promise<string | null> {
+export async function resolvePlaceName(latitude: number, longitude: number): Promise<string | null> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
     const addresses = await Promise.race([
