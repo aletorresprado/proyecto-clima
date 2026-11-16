@@ -1,10 +1,12 @@
 import { weatherCode, daylight } from './weather-condition.ts';
+import { parseDailyForecast, type ForecastDay } from './daily-forecast.ts';
 export type WeatherLocation = { label: string; latitude: number; longitude: number; timezone?: string | null };
 export type ForecastHour = { weatherCode?: number | null; isDay?: boolean | null; time: number; temperatureC: number | null; windKmh: number | null; seaLevelPressureHpa: number | null };
 export type UvHour = { time: number; uvIndex: number | null };
 export type VisibilityHour = { time: number; visibilityM: number | null };
 export type PrecipitationHour = { time: number; probability: number | null; amountMm: number | null };
 export type CurrentWeather = {
+  daily?: ForecastDay[] | null;
   weatherCode?: number | null;
   isDay?: boolean | null;
   temperatureC: number | null;
@@ -128,6 +130,7 @@ export function parseCurrentWeather(payload: unknown, fetchedAt = Date.now()): C
     uvHourly: parseUvForecast(payload, fetchedAt),
     visibilityHourly: parseVisibilityForecast(payload, fetchedAt),
     precipitationHourly: parsePrecipitationForecast(payload, fetchedAt),
+    daily: parseDailyForecast(payload, fetchedAt),
   };
 }
 export async function fetchCurrentWeather(location: WeatherLocation, signal: AbortSignal): Promise<CurrentWeather> {
@@ -139,7 +142,7 @@ export async function fetchCurrentWeather(location: WeatherLocation, signal: Abo
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl,weather_code,is_day&hourly=weather_code,is_day,temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation,visibility&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,wind_speed_10m,pressure_msl,weather_code,is_day&hourly=weather_code,is_day,temperature_2m,wind_speed_10m,pressure_msl,uv_index,precipitation_probability,precipitation,visibility&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&timeformat=unixtime&forecast_hours=25&forecast_days=7&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`;
     let response: Response;
     try { response = await fetch(url, { signal: controller.signal }); }
     catch (error) {

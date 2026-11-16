@@ -3,6 +3,9 @@ import { ActivityIndicator, AppState, Linking, Pressable, StyleSheet, Text, View
 import { fetchCurrentWeather, isWeatherFresh, isForecastFresh, type CurrentWeather, type WeatherLocation } from '@/providers/current-weather';
 import { useCardPreferences } from '@/components/card-preferences-context';
 import { HourlyWeatherStrip } from '@/components/hourly-weather-strip';
+import { TemperatureForecastChart } from '@/components/temperature-forecast-chart';
+import { WeatherMetricChart } from '@/components/weather-metric-chart';
+import { DailyForecast } from '@/components/daily-forecast';
 import { WeatherSummary } from '@/components/weather-summary';
 import { WindNoticeCard } from '@/components/wind-notice-card';
 import { UvNoticeCard } from '@/components/uv-notice-card';
@@ -15,6 +18,8 @@ export function WeatherPanel({ location }: { location: WeatherLocation }) {
   const cards = cardState.preferences;
   const [weather, setWeather] = useState<CurrentWeather>();
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [temperatureOpen, setTemperatureOpen] = useState(false);
+  const [metricsOpen, setMetricsOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [now, setNow] = useState(Date.now());
@@ -62,8 +67,24 @@ export function WeatherPanel({ location }: { location: WeatherLocation }) {
           : <>
             {futureHours.length < 24 && <Text style={styles.body}>Pronóstico incompleto: disponibles {futureHours.length} horas dentro de las próximas 24. Podés actualizar.</Text>}
             <HourlyWeatherStrip hours={futureHours} timezone={weather.timezone} />
+            <Pressable accessibilityRole="button" accessibilityState={{ expanded: temperatureOpen }} onPress={() => setTemperatureOpen((open) => !open)} style={styles.chartButton}><Text style={styles.sourceText}>{temperatureOpen ? 'Cerrar gráfico de temperatura −' : 'Ver gráfico de temperatura +'}</Text></Pressable>
+            {temperatureOpen && <>
+              <TemperatureForecastChart hours={futureHours} timezone={weather.timezone} place={location.label} fetchedAt={weather.fetchedAt} />
+              <Pressable accessibilityRole="button" onPress={() => setTemperatureOpen(false)} style={styles.chartButton}><Text style={styles.sourceText}>Cerrar gráfico −</Text></Pressable>
+            </>}
           </>}
       </View>}
+      {weather && forecastFresh && <>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: metricsOpen }} onPress={() => setMetricsOpen((open) => !open)} style={styles.chartButton}><Text style={styles.sourceText}>{metricsOpen ? 'Cerrar gráficos de viento y precipitación −' : 'Ver gráficos de viento y precipitación +'}</Text></Pressable>
+        {metricsOpen && <>
+          <WeatherMetricChart weather={weather} now={now} place={location.label} />
+          <Pressable accessibilityRole="button" onPress={() => setMetricsOpen(false)} style={styles.chartButton}><Text style={styles.sourceText}>Cerrar gráficos −</Text></Pressable>
+        </>}
+      </>}
+      {weather && <>
+        {forecastFresh ? <DailyForecast days={weather.daily} timezone={weather.timezone} place={location.label} fetchedAt={weather.fetchedAt} now={now} />
+          : <Text style={styles.body}>El pronóstico diario también está vencido. Actualizá la consulta.</Text>}
+      </>}
       {weather && <View style={styles.details}>
         <Pressable accessibilityRole="button" accessibilityState={{ expanded: detailsOpen }} onPress={() => setDetailsOpen((open) => !open)} style={styles.detailsButton}>
           <Text style={styles.sourceText}>{detailsOpen ? 'Ocultar detalles de los datos −' : 'Ver detalles de los datos +'}</Text>
@@ -88,6 +109,7 @@ export function WeatherPanel({ location }: { location: WeatherLocation }) {
   );
 }
 const styles = StyleSheet.create({
+  chartButton: { padding: 14, minHeight: 48, backgroundColor: '#E4F2F3', borderRadius: 14, borderWidth: 1, borderColor: '#A9CCD0' },
   details: { borderColor: '#D3E2E9', borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, gap: 8 },
   detailsButton: { paddingVertical: 16, minHeight: 48 },
   panel: { gap: 16 }, title: { fontSize: 24, fontWeight: '700', color: '#142F44' },
