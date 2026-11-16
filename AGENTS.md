@@ -38,6 +38,7 @@
 - Datos ausentes o vencidos significan información insuficiente, no ausencia de riesgo.
 
 ## Privacidad
+- Acuerdo de etapa 5: diario local cifrado en el dispositivo, sin Firebase para notas. No activar sincronización sanitaria sin una nueva decisión explícita. Validar primero con datos ficticios.
 - Perfil de salud y diario de síntomas opcionales, separados del uso básico meteorológico.
 - Requerir autenticación para guardar datos personales de salud en la nube.
 - Acceso por usuario y pruebas de aislamiento de datos; Firebase Auth por sí solo no protege Firestore.

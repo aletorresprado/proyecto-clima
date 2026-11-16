@@ -2,6 +2,8 @@ import { Link, Redirect } from 'expo-router';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 const scenarios = [
+  { href: '/diary-storage-test', label: 'Cifrado local del diario', description: 'Prueba técnica ficticia; requiere nueva compilación Android.' },
+  { href: '/diary-demo', label: 'Diario breve', description: 'Nota y contexto meteorológico ficticios, solo en memoria.' },
   { href: '/wind-demo', label: 'Viento', description: 'Umbral experimental, datos faltantes y consulta vencida.' },
   { href: '/uv-demo', label: 'Índice UV', description: 'Protección, refuerzo y estados sin información suficiente.' },
   { href: '/precipitation-demo', label: 'Precipitación', description: 'Probabilidades e intervalos horarios ficticios.' },
